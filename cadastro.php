@@ -1,10 +1,53 @@
+<?php
+
+if (isset($_POST['submit'])) {
+
+    include_once('config.php');
+
+    $nome = $_POST['nome'];
+    $email = $_POST['email'];
+    $telefone = $_POST['telefone'];
+    $sexo = $_POST['genero'];
+    $data_nascimento = $_POST['data_nascimento'];
+    $cidade = $_POST['cidade'];
+    $estado = $_POST['estado'];
+    $endereco = $_POST['endereco'];
+
+    $sql = "INSERT INTO usuarios (nome, email, telefone, sexo, data_nascimento, cidade, estado, endereco) 
+            VALUES (:nome, :email, :telefone, :sexo, :data_nascimento, :cidade, :estado, :endereco)";
+
+    try {
+        $stmt = $pdo->prepare($sql);
+
+        $result = $stmt->execute([
+            ':nome' => $nome,
+            ':email' => $email,
+            ':telefone' => $telefone,
+            ':sexo' => $sexo,
+            ':data_nascimento' => $data_nascimento,
+            ':cidade' => $cidade,
+            ':estado' => $estado,
+            ':endereco' => $endereco
+        ]);
+
+        /* if ($result) {
+            echo "Conexão bem-sucedida ao PostgreSQL!";
+            print_r('<br>');
+            echo "Cadastro realizado com sucesso!";
+        }*/
+    } catch (PDOException $e) {
+        echo "Erro ao cadastrar: " . $e->getMessage();
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulário</title>
+    <title>Cadastro</title>
     <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
@@ -81,7 +124,7 @@
 </head>
 <body>
     <div class="box">
-        <form action="">
+        <form action="cadastro.php" method="POST">
             <fieldset>
                 <legend><b>Fórmulário de Clientes</b></legend>
                 <br>
