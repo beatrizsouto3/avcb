@@ -31,7 +31,7 @@ if (isset($_POST['submit'])) {
             ':estado' => $estado,
             ':endereco' => $endereco
         ]);
-
+        
         header('Location: login.php');
 
         /* if ($result) {
