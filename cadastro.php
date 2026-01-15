@@ -6,6 +6,7 @@ if (isset($_POST['submit'])) {
 
     $nome = $_POST['nome'];
     $email = $_POST['email'];
+    $senha = $_POST['senha'];
     $telefone = $_POST['telefone'];
     $sexo = $_POST['genero'];
     $data_nascimento = $_POST['data_nascimento'];
@@ -13,8 +14,8 @@ if (isset($_POST['submit'])) {
     $estado = $_POST['estado'];
     $endereco = $_POST['endereco'];
 
-    $sql = "INSERT INTO usuarios (nome, email, telefone, sexo, data_nascimento, cidade, estado, endereco) 
-            VALUES (:nome, :email, :telefone, :sexo, :data_nascimento, :cidade, :estado, :endereco)";
+    $sql = "INSERT INTO usuarios (nome, email, senha, telefone, sexo, data_nascimento, cidade, estado, endereco) 
+            VALUES (:nome, :email, :senha, :telefone, :sexo, :data_nascimento, :cidade, :estado, :endereco)";
 
     try {
         $stmt = $pdo->prepare($sql);
@@ -22,6 +23,7 @@ if (isset($_POST['submit'])) {
         $result = $stmt->execute([
             ':nome' => $nome,
             ':email' => $email,
+            ':senha' => $senha,
             ':telefone' => $telefone,
             ':sexo' => $sexo,
             ':data_nascimento' => $data_nascimento,
@@ -29,6 +31,8 @@ if (isset($_POST['submit'])) {
             ':estado' => $estado,
             ':endereco' => $endereco
         ]);
+
+        header('Location: login.php');
 
         /* if ($result) {
             echo "Conexão bem-sucedida ao PostgreSQL!";
@@ -120,13 +124,26 @@ if (isset($_POST['submit'])) {
         #submit:hover{
             background-image: linear-gradient(to right,rgb(0, 80, 172), rgb(80, 19, 195));
         }
+        a{
+            text-decoration: none;
+            color: white;
+            border: 2px solid dodgerblue;
+            border-radius: 5px;
+            padding: 5px;
+            background-color: dodgerblue;
+        }
+        a:hover{
+            background-color: deepskyblue;
+        }
     </style>
 </head>
 <body>
     <div class="box">
+        <a href="inicio.php">⭠ Voltar</a>
+        <br><br>
         <form action="cadastro.php" method="POST">
             <fieldset>
-                <legend><b>Fórmulário de Clientes</b></legend>
+                <legend><b>Cadastro</b></legend>
                 <br>
                 <div class="inputBox">
                     <input type="text" name="nome" id="nome" class="inputUser" required>
@@ -136,6 +153,11 @@ if (isset($_POST['submit'])) {
                 <div class="inputBox">
                     <input type="text" name="email" id="email" class="inputUser" required>
                     <label for="email" class="labelInput">Email</label>
+                </div>
+                <br><br>
+                <div class="inputBox">
+                    <input type="password" name="senha" id="senha" class="inputUser" required>
+                    <label for="senha" class="labelInput">Senha</label>
                 </div>
                 <br><br>
                 <div class="inputBox">
