@@ -1,47 +1,50 @@
 <?php
-
-if (isset($_POST['submit'])) {
-
+    session_start();
     include_once('config.php');
 
-    $nome = $_POST['nome'];
-    $email = $_POST['email'];
-    $senha = $_POST['senha'];
-    $telefone = $_POST['telefone'];
-    $sexo = $_POST['genero'];
-    $data_nascimento = $_POST['data_nascimento'];
-    $cidade = $_POST['cidade'];
-    $estado = $_POST['estado'];
-    $endereco = $_POST['endereco'];
-
-    $sql = "INSERT INTO usuarios (nome, email, senha, telefone, sexo, data_nascimento, cidade, estado, endereco, permissao_id) VALUES (:nome, :email, :senha, :telefone, :sexo, :data_nascimento, :cidade, :estado, :endereco, 2)";
-
-    try {
-        $stmt = $pdo->prepare($sql);
-
-        $result = $stmt->execute([
-            ':nome' => $nome,
-            ':email' => $email,
-            ':senha' => $senha,
-            ':telefone' => $telefone,
-            ':sexo' => $sexo,
-            ':data_nascimento' => $data_nascimento,
-            ':cidade' => $cidade,
-            ':estado' => $estado,
-            ':endereco' => $endereco
-        ]);
-        
-        header('Location: login.php');
-
-        /* if ($result) {
-            echo "Conexão bem-sucedida ao PostgreSQL!";
-            print_r('<br>');
-            echo "Cadastro realizado com sucesso!";
-        }*/
-    } catch (PDOException $e) {
-        echo "Erro ao cadastrar: " . $e->getMessage();
+    if((!isset($_SESSION['email']) == true) or (!isset($_SESSION['senha']) == true) or ($_SESSION['permissao'] != 1)){
+        header('Location: sistema.php');
+        exit;
     }
-}
+
+    if (isset($_POST['submit'])) {
+
+        $nome = $_POST['nome'];
+        $email = $_POST['email'];
+        $senha = $_POST['senha'];
+        $telefone = $_POST['telefone'];
+        $sexo = $_POST['genero'];
+        $data_nascimento = $_POST['data_nascimento'];
+        $cidade = $_POST['cidade'];
+        $estado = $_POST['estado'];
+        $endereco = $_POST['endereco'];
+        $permissao_id = $_POST['permissao_id'];
+
+        $sql = "INSERT INTO usuarios (nome, email, senha, telefone, sexo, data_nascimento, cidade, estado, endereco, permissao_id) 
+                VALUES (:nome, :email, :senha, :telefone, :sexo, :data_nascimento, :cidade, :estado, :endereco, :permissao_id)";
+
+        try {
+            $stmt = $pdo->prepare($sql);
+
+            $stmt->execute([
+                ':nome' => $nome,
+                ':email' => $email,
+                ':senha' => $senha,
+                ':telefone' => $telefone,
+                ':sexo' => $sexo,
+                ':data_nascimento' => $data_nascimento,
+                ':cidade' => $cidade,
+                ':estado' => $estado,
+                ':endereco' => $endereco,
+                ':permissao_id' => $permissao_id 
+            ]);
+            
+            header('Location: sistema.php?page=usuarios');
+
+        } catch (PDOException $e) {
+            echo "Erro ao cadastrar: " . $e->getMessage();
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -50,7 +53,7 @@ if (isset($_POST['submit'])) {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro</title>
+    <title>Cadastro Admin</title>
     <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
@@ -67,9 +70,7 @@ if (isset($_POST['submit'])) {
             border-radius: 15px;
             width: 20%;
         }
-        fieldset{
-            border: 3px solid dodgerblue;
-        }
+        fieldset{ border: 3px solid dodgerblue; }
         legend{
             border: 1px solid dodgerblue;
             padding: 10px;
@@ -77,9 +78,7 @@ if (isset($_POST['submit'])) {
             background-color: dodgerblue;
             border-radius: 8px;
         }
-        .inputBox{
-            position: relative;
-        }
+        .inputBox{ position: relative; }
         .inputUser{
             background: none;
             border: none;
@@ -120,8 +119,11 @@ if (isset($_POST['submit'])) {
             cursor: pointer;
             border-radius: 10px;
         }
-        #submit:hover{
-            background-image: linear-gradient(to right,rgb(0, 80, 172), rgb(80, 19, 195));
+        select {
+            padding: 8px;
+            border-radius: 10px;
+            outline: none;
+            width: 100%;
         }
         a{
             text-decoration: none;
@@ -131,18 +133,15 @@ if (isset($_POST['submit'])) {
             padding: 5px;
             background-color: dodgerblue;
         }
-        a:hover{
-            background-color: deepskyblue;
-        }
     </style>
 </head>
 <body>
     <div class="box">
-        <a href="inicio.php">⭠ Voltar</a>
+        <a href="sistema.php?page=usuarios">⭠ Voltar</a>
         <br><br>
-        <form action="cadastro.php" method="POST">
+        <form action="cadastroAdmin.php" method="POST">
             <fieldset>
-                <legend><b>Cadastro</b></legend>
+                <legend><b>Novo Usuário</b></legend>
                 <br>
                 <div class="inputBox">
                     <input type="text" name="nome" id="nome" class="inputUser" required>
@@ -159,6 +158,14 @@ if (isset($_POST['submit'])) {
                     <label for="senha" class="labelInput">Senha</label>
                 </div>
                 <br><br>
+
+                <label for="permissao"><b>Nível de Acesso:</b></label>
+                <select name="permissao_id" id="permissao">
+                    <option value="2" selected>Comum</option>
+                    <option value="1">Administrador</option>
+                </select>
+                <br><br>
+
                 <div class="inputBox">
                     <input type="tel" name="telefone" id="telefone" class="inputUser" required>
                     <label for="telefone" class="labelInput">Telefone</label>
@@ -191,7 +198,7 @@ if (isset($_POST['submit'])) {
                     <label for="endereco" class="labelInput">Endereço</label>
                 </div>
                 <br><br>
-                <input type="submit" name="submit" id="submit">
+                <input type="submit" name="submit" id="submit" value="Cadastrar">
             </fieldset>
         </form>
     </div>

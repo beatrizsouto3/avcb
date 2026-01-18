@@ -1,8 +1,14 @@
 <?php
+    session_start();
+    include_once('config.php');
+
+    if((!isset($_SESSION['email']) == true) and (!isset($_SESSION['senha']) == true) or ($_SESSION['permissao'] != 1)){
+        header('Location: sistema.php');
+        exit;
+    }
+
     if(!empty($_GET['id']))
     {
-        include_once('config.php');
-
         $id = $_GET['id'];
 
         $sqlSelect = "SELECT * FROM usuarios WHERE id=$id";
@@ -23,15 +29,16 @@
             $cidade = $user_data['cidade'];
             $estado = $user_data['estado'];
             $endereco = $user_data['endereco'];
+            $permissao_id = $user_data['permissao_id'];
         }
         else
         {
-            header('Location: sistema.php');
+            header('Location: sistema.php?page=usuarios');
         }
     }
     else
     {
-        header('Location: sistema.php');
+        header('Location: sistema.php?page=usuarios');
     }
 ?>
 
@@ -114,6 +121,12 @@
         #submit:hover{
             background-image: linear-gradient(to right,rgb(0, 80, 172), rgb(80, 19, 195));
         }
+        select {
+            padding: 8px;
+            border-radius: 10px;
+            outline: none;
+            width: 100%;
+        }
         a{
             text-decoration: none;
             color: white;
@@ -129,7 +142,7 @@
 </head>
 <body>
     <div class="box">
-        <a href="sistema.php">⭠ Voltar</a>
+        <a href="sistema.php?page=usuarios">⭠ Voltar</a>
         <br><br>
         <form action="saveEdit.php" method="POST">
             <fieldset>
@@ -150,6 +163,14 @@
                     <label for="senha" class="labelInput">Senha</label>
                 </div>
                 <br><br>
+                
+                <label for="permissao"><b>Nível de Acesso:</b></label>
+                <select name="permissao_id" id="permissao">
+                    <option value="2" <?php echo ($permissao_id == 2) ? 'selected' : ''; ?>>Comum</option>
+                    <option value="1" <?php echo ($permissao_id == 1) ? 'selected' : ''; ?>>Administrador</option>
+                </select>
+                <br><br>
+
                 <div class="inputBox">
                     <input type="tel" name="telefone" id="telefone" class="inputUser" value="<?php echo $telefone;?>" required>
                     <label for="telefone" class="labelInput">Telefone</label>

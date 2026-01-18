@@ -38,7 +38,7 @@ use PSpell\Config;
             $_SESSION['email'] = $email;
             $_SESSION['senha'] = $senha;
             
-            print_r($usuario);
+            $_SESSION['permissao'] = $usuario['permissao_id']; 
             
             header('Location: sistema.php');
         }

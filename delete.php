@@ -1,5 +1,11 @@
 <?php
 
+    session_start();
+    if(!isset($_SESSION['email']) || $_SESSION['permissao'] != 1){
+    header('Location: sistema.php');
+    exit;
+    }
+
     if(!empty($_GET['id']))
     {
         include_once('config.php');
