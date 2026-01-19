@@ -62,6 +62,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
     <title>SISTEMA | AVCB</title>
     <style>
         body{
@@ -105,6 +106,38 @@
     </style>
 </head>
 <body>
+
+    <?php
+    if(isset($_GET['msg'])){
+        $msg = $_GET['msg'];
+        
+        $toastClass = "bg-secondary";
+        $toastMsg = "Ação realizada.";
+        
+        if($msg == 'deletado'){
+            $toastClass = "bg-danger";
+            $toastMsg = "Usuário excluído com sucesso!";
+        }
+        else if($msg == 'atualizado'){
+            $toastClass = "bg-primary";
+            $toastMsg = "Dados atualizados com sucesso!";
+        }
+        else if($msg == 'cadastrado'){
+            $toastClass = "bg-success";
+            $toastMsg = "Usuário cadastrado com sucesso!";
+        }
+    ?>
+    <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast align-items-center text-white <?php echo $toastClass; ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" style="font-size: 16px;">
+                    <i class="bi bi-info-circle-fill me-2"></i> <?php echo $toastMsg; ?>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
             <a class="navbar-brand" href="sistema.php">Sistema | AVCB</a>
@@ -136,14 +169,18 @@
             </nav>
 
             <main class="col-md-10 ms-sm-auto px-md-4 py-4 text-center">
+                
                 <?php if($pagina_atual == 'home'){ ?>
                     <div class="mt-5">
                         <i class="bi bi-shield-check" style="font-size: 5rem;"></i>
                         <h1 class="display-4">Bem vindo ao Sistema</h1>
                         <h3>Usuário logado: <u><?php echo $logado; ?></u></h3>
+                        <p class="mt-3 text-muted">Seu nível: 
+                            <strong><?php echo (isset($_SESSION['permissao']) && $_SESSION['permissao'] == 1) ? 'Administrador' : 'Comum'; ?></strong>
+                        </p>
                     </div>
+
                 <?php } elseif($pagina_atual == 'usuarios'){ ?>
-                    
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h2>Gestão de Usuários</h2>
                         <a href="cadastroAdmin.php" class="btn btn-success"><i class="bi bi-person-plus-fill"></i> Novo Usuário</a>
@@ -204,19 +241,33 @@
             </main>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         var search = document.getElementById('pesquisar');
         var filtro = document.getElementById('filtro');
 
-        search.addEventListener("keydown", function(event) {
-            if (event.key === "Enter") {
-                searchData();
-            }
-        });
+        if(search){
+            search.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                    searchData();
+                }
+            });
+        }
 
         function searchData(){
             window.location = 'sistema.php?page=usuarios&busca='+search.value+'&filtro='+filtro.value;
+        }
+
+        window.onload = function() {
+            var toastEl = document.getElementById('liveToast');
+            if (toastEl) {
+                var toast = new bootstrap.Toast(toastEl, {
+                    delay: 4000
+                });
+                toast.show();
+            }
         }
     </script>
 </body>

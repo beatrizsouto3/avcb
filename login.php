@@ -1,3 +1,6 @@
+<?php
+    session_start();
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -49,6 +52,16 @@
         a:hover{
             background-color: deepskyblue;
         }
+        .erro-msg {
+            color: #ffcccc;
+            background-color: rgba(255, 0, 0, 0.2);
+            padding: 3px;
+            border: 1px solid red;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -57,10 +70,21 @@
         <br><br>
         <h1>Login</h1>
         <form action="testLogin.php" method="POST">
-            <input type="text" name="email"  placeholder="Email">
+            <input type="text" name="email" placeholder="Email">
             <br><br>
             <input type="password" name="senha" placeholder="Senha">
             <br><br>
+
+            <?php
+            if(isset($_SESSION['nao_autenticado'])):
+            ?>
+            <div class="erro-msg">
+                <p>Usuário ou senha inválidos.</p>
+            </div>
+            <?php
+            endif;
+            unset($_SESSION['nao_autenticado']);
+            ?>
             <input class="inputSubmit" type="submit" name="submit" value="Enviar">
         </form>
     </div>

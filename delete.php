@@ -27,6 +27,5 @@
         }
     }
 
-    header('Location: sistema.php');
-
+    header('Location: sistema.php?page=usuarios&msg=deletado');
 ?>

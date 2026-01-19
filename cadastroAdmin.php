@@ -11,17 +11,15 @@
 
         $nome = $_POST['nome'];
         $email = $_POST['email'];
-        $senha = $_POST['senha'];
         $telefone = $_POST['telefone'];
-        $sexo = $_POST['genero'];
         $data_nascimento = $_POST['data_nascimento'];
-        $cidade = $_POST['cidade'];
-        $estado = $_POST['estado'];
-        $endereco = $_POST['endereco'];
         $permissao_id = $_POST['permissao_id'];
-
-        $sql = "INSERT INTO usuarios (nome, email, senha, telefone, sexo, data_nascimento, cidade, estado, endereco, permissao_id) 
-                VALUES (:nome, :email, :senha, :telefone, :sexo, :data_nascimento, :cidade, :estado, :endereco, :permissao_id)";
+        
+        $senhaLimpa = substr(md5(time()), 0, 11);
+        $senha = md5($senhaLimpa); 
+        
+        $sql = "INSERT INTO usuarios (nome, email, senha, telefone, data_nascimento, permissao_id, primeiro_acesso) 
+                VALUES (:nome, :email, :senha, :telefone, :data_nascimento, :permissao_id, 'true')";
 
         try {
             $stmt = $pdo->prepare($sql);
@@ -31,18 +29,17 @@
                 ':email' => $email,
                 ':senha' => $senha,
                 ':telefone' => $telefone,
-                ':sexo' => $sexo,
                 ':data_nascimento' => $data_nascimento,
-                ':cidade' => $cidade,
-                ':estado' => $estado,
-                ':endereco' => $endereco,
-                ':permissao_id' => $permissao_id 
+                ':permissao_id' => $permissao_id
             ]);
             
-            header('Location: sistema.php?page=usuarios');
+            include_once('enviarEmail.php');
+            enviarEmailBoasVindas($nome, $email, $senhaLimpa);
+            
+            header('Location: sistema.php?page=usuarios&msg=cadastrado');
 
         } catch (PDOException $e) {
-            echo "Erro ao cadastrar: " . $e->getMessage();
+            echo "<script>alert('Erro ao cadastrar: " . $e->getMessage() . "');</script>";
         }
     }
 ?>
@@ -66,11 +63,15 @@
             left: 50%;
             transform: translate(-50%,-50%);
             background-color: rgba(0, 0, 0, 0.6);
-            padding: 15px;
+            padding: 35px;
             border-radius: 15px;
-            width: 20%;
+            min-width: 420px;
+            max-width: 600px;
         }
-        fieldset{ border: 3px solid dodgerblue; }
+        fieldset{
+            border: 3px solid dodgerblue;
+            padding: 20px;
+        }
         legend{
             border: 1px solid dodgerblue;
             padding: 10px;
@@ -97,7 +98,7 @@
             transition: .5s;
         }
         .inputUser:focus ~ .labelInput,
-        .inputUser:valid ~ .labelInput{
+        .inputUser:not(:placeholder-shown) ~ .labelInput{
             top: -20px;
             font-size: 12px;
             color: dodgerblue;
@@ -108,8 +109,11 @@
             border-radius: 10px;
             outline: none;
             font-size: 15px;
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            color: white;
         }
-        #submit{
+        .btn-custom {
             background-image: linear-gradient(to right,rgb(0, 92, 197), rgb(90, 20, 220));
             width: 100%;
             border: none;
@@ -118,6 +122,11 @@
             font-size: 15px;
             cursor: pointer;
             border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
+            margin-top: 15px;
         }
         select {
             padding: 8px;
@@ -125,7 +134,7 @@
             outline: none;
             width: 100%;
         }
-        a{
+        a.voltar{
             text-decoration: none;
             color: white;
             border: 2px solid dodgerblue;
@@ -136,28 +145,29 @@
     </style>
 </head>
 <body>
+
     <div class="box">
-        <a href="sistema.php?page=usuarios">⭠ Voltar</a>
+        <a href="sistema.php?page=usuarios" class="voltar">⭠ Voltar</a>
         <br><br>
         <form action="cadastroAdmin.php" method="POST">
             <fieldset>
-                <legend><b>Novo Usuário</b></legend>
+                <legend><b>Novo Usuário (Admin)</b></legend>
                 <br>
+                
                 <div class="inputBox">
-                    <input type="text" name="nome" id="nome" class="inputUser" required>
+                    <input type="text" name="nome" id="nome" class="inputUser" required placeholder=" ">
                     <label for="nome" class="labelInput">Nome completo</label>
                 </div>
                 <br><br>
+                
                 <div class="inputBox">
-                    <input type="text" name="email" id="email" class="inputUser" required>
+                    <input type="email" name="email" id="email" class="inputUser" required placeholder=" ">
                     <label for="email" class="labelInput">Email</label>
                 </div>
                 <br><br>
-                <div class="inputBox">
-                    <input type="password" name="senha" id="senha" class="inputUser" required>
-                    <label for="senha" class="labelInput">Senha</label>
-                </div>
-                <br><br>
+                
+                <p style="font-size: 12px; color: yellow;">* A senha temporária será enviada por e-mail.</p>
+                <br>
 
                 <label for="permissao"><b>Nível de Acesso:</b></label>
                 <select name="permissao_id" id="permissao">
@@ -167,40 +177,20 @@
                 <br><br>
 
                 <div class="inputBox">
-                    <input type="tel" name="telefone" id="telefone" class="inputUser" required>
+                    <input type="tel" name="telefone" id="telefone" class="inputUser" required placeholder=" ">
                     <label for="telefone" class="labelInput">Telefone</label>
                 </div>
-                <p>Sexo:</p>
-                <input type="radio" id="feminino" name="genero" value="feminino" required>
-                <label for="feminino">Feminino</label>
-                <br>
-                <input type="radio" id="masculino" name="genero" value="masculino" required>
-                <label for="masculino">Masculino</label>
-                <br>
-                <input type="radio" id="outro" name="genero" value="outro" required>
-                <label for="outro">Outro</label>
                 <br><br>
+
                 <label for="data_nascimento"><b>Data de Nascimento:</b></label>
+                <br>
                 <input type="date" name="data_nascimento" id="data_nascimento" required>
-                <br><br><br>
-                <div class="inputBox">
-                    <input type="text" name="cidade" id="cidade" class="inputUser" required>
-                    <label for="cidade" class="labelInput">Cidade</label>
-                </div>
                 <br><br>
-                <div class="inputBox">
-                    <input type="text" name="estado" id="estado" class="inputUser" required>
-                    <label for="estado" class="labelInput">Estado</label>
-                </div>
-                <br><br>
-                <div class="inputBox">
-                    <input type="text" name="endereco" id="endereco" class="inputUser" required>
-                    <label for="endereco" class="labelInput">Endereço</label>
-                </div>
-                <br><br>
-                <input type="submit" name="submit" id="submit" value="Cadastrar">
+
+                <input type="submit" name="submit" id="submit" class="btn-custom" value="Cadastrar Usuário">
             </fieldset>
         </form>
     </div>
+
 </body>
 </html>

@@ -1,18 +1,12 @@
 <?php
-
     session_start();
 
-    //print_r($_REQUEST);
-
-use PSpell\Config;
-
-    if(isset($_POST['submit']) && !empty($_POST['email']) && !empty($_POST['senha'])){
-
-        // acessa
+    if(isset($_POST['submit']) && !empty($_POST['email']) && !empty($_POST['senha']))
+    {
         include_once('config.php');
 
         $email = $_POST['email'];
-        $senha = $_POST['senha'];
+        $senha = md5($_POST['senha']);
 
         $sql = "SELECT * FROM usuarios WHERE email = :email AND senha = :senha";
         
@@ -23,30 +17,32 @@ use PSpell\Config;
             ':senha' => $senha
         ]);
 
-        // conta quantas linhas o banco devolveu
         if($stmt->rowCount() < 1)
         {
-            // menor que 1 = não achou ninguem
             unset($_SESSION['email']);
             unset($_SESSION['senha']);
+            $_SESSION['nao_autenticado'] = true;
+            
             header('Location: login.php');
         }
         else
         {
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-            
             $_SESSION['email'] = $email;
-            $_SESSION['senha'] = $senha;
-            
+            $_SESSION['id_usuario'] = $usuario['id']; 
             $_SESSION['permissao'] = $usuario['permissao_id']; 
             
-            header('Location: sistema.php');
+            if($usuario['primeiro_acesso'] == true || $usuario['primeiro_acesso'] == 't'){
+                header('Location: novaSenha.php');
+            } 
+            else {
+                $_SESSION['senha'] = $senha;
+                header('Location: sistema.php');
+            }
         }
-    } else {
-        //não acessa
+    }
+    else
+    {
         header('Location: login.php');
     }
-
-
-
 ?>

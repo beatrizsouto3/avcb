@@ -159,7 +159,7 @@
                 </div>
                 <br><br>
                 <div class="inputBox">
-                    <input type="text" name="senha" id="senha" class="inputUser" value="<?php echo $senha;?>" required>
+                    <input type="password" name="senha" id="senha" class="inputUser" placeholder="Deixe em branco para manter">
                     <label for="senha" class="labelInput">Senha</label>
                 </div>
                 <br><br>

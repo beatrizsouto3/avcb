@@ -12,20 +12,22 @@
         $id = $_POST['id'];
         $nome = $_POST['nome'];
         $email = $_POST['email'];
-        $senha = $_POST['senha'];
+        
+        $senhaPost = $_POST['senha'];
+        $senha = !empty($senhaPost) ? md5($senhaPost) : '';
+
         $telefone = $_POST['telefone'];
         $sexo = $_POST['genero'];
         $data_nascimento = $_POST['data_nascimento'];
         $cidade = $_POST['cidade'];
         $estado = $_POST['estado'];
         $endereco = $_POST['endereco'];
-        
         $permissao_id = $_POST['permissao_id']; 
         
         $sql = "UPDATE usuarios 
                 SET nome = :nome, 
                     email = :email, 
-                    senha = :senha, 
+                    senha = CASE WHEN :senha = '' THEN senha ELSE :senha END, 
                     telefone = :telefone, 
                     sexo = :sexo, 
                     data_nascimento = :data_nascimento, 
@@ -52,5 +54,5 @@
         ]);
     }
 
-    header('Location: sistema.php?page=usuarios');
+    header('Location: sistema.php?page=usuarios&msg=atualizado');
 ?>
