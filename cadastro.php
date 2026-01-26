@@ -61,7 +61,7 @@ if (isset($_POST['submit'])) {
     <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
-            background-image: linear-gradient(to right, rgb(20, 147, 220), rgb(17, 54, 71));
+            background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35));
         }
         .box{
             color: white;
@@ -76,15 +76,16 @@ if (isset($_POST['submit'])) {
             max-width: 600px;
         }
         fieldset{
-            border: 3px solid dodgerblue;
+            border: 3px solid limegreen;
             padding: 20px; 
         }
         legend{
-            border: 1px solid dodgerblue;
+            border: 1px solid limegreen;
             padding: 10px;
             text-align: center;
-            background-color: dodgerblue;
+            background-color: limegreen;
             border-radius: 8px;
+            color: black;
         }
         .inputBox{ position: relative; }
         .inputUser{
@@ -108,7 +109,7 @@ if (isset($_POST['submit'])) {
         .inputUser:not(:placeholder-shown) ~ .labelInput {
             top: -20px;
             font-size: 12px;
-            color: dodgerblue;
+            color: limegreen;
         }
         #data_nascimento{
             border: none;
@@ -123,7 +124,7 @@ if (isset($_POST['submit'])) {
         }
         
         .btn-custom {
-            background-image: linear-gradient(to right,rgb(0, 92, 197), rgb(90, 20, 220));
+            background-image: linear-gradient(to right, rgb(50, 205, 50), rgb(34, 139, 34));
             width: 100%;
             border: none;
             padding: 15px;
@@ -138,20 +139,21 @@ if (isset($_POST['submit'])) {
             margin-top: 10px;
         }
         .btn-custom:hover{
-            background-image: linear-gradient(to right,rgb(0, 80, 172), rgb(80, 19, 195));
+            background-image: linear-gradient(to right, rgb(34, 139, 34), rgb(0, 100, 0));
         }
 
         a.voltar{
             text-decoration: none;
             color: white;
-            border: 2px solid dodgerblue;
+            border: 2px solid limegreen;
             border-radius: 5px;
             padding: 5px;
-            background-color: dodgerblue;
+            background-color: limegreen;
+            color: black;
         }
         
         .sucesso-container { text-align: center; }
-        .sucesso-titulo { color: deepskyblue; margin-bottom: 20px; }
+        .sucesso-titulo { color: limegreen; margin-bottom: 20px; }
         .sucesso-texto { font-size: 1.1rem; margin-bottom: 30px; line-height: 1.5; }
 
         .msg-erro {

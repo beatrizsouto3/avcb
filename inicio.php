@@ -7,7 +7,7 @@
     <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
-            background-image: linear-gradient(to right, rgb(20, 147, 220), rgb(17, 54, 71));
+            background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35));
             text-align: center;
             color: white;
         }
@@ -23,12 +23,12 @@
         a{
             text-decoration: none;
             color: white;
-            border: 3px solid dodgerblue;
+            border: 3px solid limegreen;
             border-radius: 10px;
             padding: 10px;
         }
         a:hover{
-            background-color: dodgerblue;
+            background-color: limegreen;
         }
     </style>
 </head>

@@ -10,7 +10,7 @@
     <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
-            background-image: linear-gradient(to right, rgb(20, 147, 220), rgb(17, 54, 71));
+            background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35));
         }
         .tela-login{
             background-color: rgba(0, 0, 0, 0.6);
@@ -29,7 +29,7 @@
             font-size: 15px;
         }
         .inputSubmit{
-            background-color: dodgerblue;
+            background-color: limegreen;
             border: none;
             padding: 15px;
             width: 100%;
@@ -38,19 +38,19 @@
             font-size: 15px;
         }
         .inputSubmit:hover{
-            background-color: deepskyblue;
+            background-color: #32CD32;
             cursor: pointer;
         }
         a{
             text-decoration: none;
             color: white;
-            border: 2px solid dodgerblue;
+            border: 2px solid limegreen;
             border-radius: 5px;
             padding: 5px;
-            background-color: dodgerblue;
+            background-color: limegreen;
         }
         a:hover{
-            background-color: deepskyblue;
+            background-color: #32CD32;
         }
         .erro-msg {
             color: #ffcccc;

@@ -46,7 +46,7 @@
     <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
-            background-image: linear-gradient(to right, rgb(20, 147, 220), rgb(17, 54, 71));
+            background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35));
             display: flex;
             justify-content: center;
             align-items: center;
@@ -72,7 +72,7 @@
             font-size: 15px;
         }
         .btn-custom {
-            background-image: linear-gradient(to right,rgb(0, 92, 197), rgb(90, 20, 220));
+            background-image: linear-gradient(to right, rgb(50, 205, 50), rgb(34, 139, 34));
             width: 100%;
             border: none;
             padding: 15px;
@@ -85,12 +85,12 @@
             box-sizing: border-box;
         }
         .btn-custom:hover{
-            background-image: linear-gradient(to right,rgb(0, 80, 172), rgb(80, 19, 195));
+            background-image: linear-gradient(to right, rgb(34, 139, 34), rgb(0, 100, 0));
         }
         h2{ margin-bottom: 20px; }
         p { font-size: 14px; color: #ccc; margin-bottom: 30px;}
 
-        .sucesso-titulo { color: deepskyblue; font-size: 1.5rem; margin-bottom: 15px; }
+        .sucesso-titulo { color: limegreen; font-size: 1.5rem; margin-bottom: 15px; }
         .sucesso-texto { font-size: 1.1rem; margin-bottom: 30px; color: white; }
         
         .msg-erro {

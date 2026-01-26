@@ -2,7 +2,7 @@
     session_start();
     include_once('config.php');
 
-    if((!isset($_SESSION['email']) == true) and (!isset($_SESSION['senha']) == true)){
+    if((!isset($_SESSION['email']) == true) or (!isset($_SESSION['senha']) == true)){
         unset($_SESSION['email']);
         unset($_SESSION['senha']);
         header('Location: login.php');
@@ -63,7 +63,7 @@
     <title>SISTEMA | AVCB</title>
     <style>
         body{
-            background-image: linear-gradient(to right, rgb(20, 147, 220), rgb(17, 54, 71));
+            background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35));
             color: white;
             overflow-x: hidden;
         }
@@ -84,11 +84,11 @@
         }
         .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.1);
-            color: dodgerblue;
+            color: limegreen;
         }
         .nav-link.active {
-            background-color: dodgerblue;
-            color: white;
+            background-color: limegreen;
+            color: black;
         }
         .box-search{
             display: flex;
@@ -116,7 +116,7 @@
             $toastMsg = "Usuário excluído com sucesso!";
         }
         else if($msg == 'atualizado'){
-            $toastClass = "bg-primary";
+            $toastClass = "bg-success";
             $toastMsg = "Dados atualizados com sucesso!";
         }
         else if($msg == 'cadastrado'){
@@ -135,7 +135,7 @@
         </div>
     </div>
     <?php } ?>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
         <div class="container-fluid">
             <a class="navbar-brand" href="sistema.php">Sistema | AVCB</a>
             <div class="d-flex">
@@ -172,9 +172,6 @@
                         <i class="bi bi-shield-check" style="font-size: 5rem;"></i>
                         <h1 class="display-4">Bem vindo ao Sistema</h1>
                         <h3>Usuário logado: <u><?php echo $logado; ?></u></h3>
-                        <p class="mt-3 text-muted">Seu nível: 
-                            <strong><?php echo (isset($_SESSION['permissao']) && $_SESSION['permissao'] == 1) ? 'Administrador' : 'Comum'; ?></strong>
-                        </p>
                     </div>
 
                 <?php } elseif($pagina_atual == 'usuarios'){ ?>
@@ -193,7 +190,7 @@
 
                         <input type="search" class="form-control w-25" placeholder="Pesquisar..." id="pesquisar" value="<?php echo isset($_GET['busca']) ? $_GET['busca'] : ''; ?>">
                         
-                        <button onclick="searchData()" class="btn btn-primary">
+                        <button onclick="searchData()" class="btn btn-success">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
@@ -220,7 +217,7 @@
                                         echo "<td>" . $user_data['telefone'] . "</td>";
                                         echo "<td>" . ($user_data['permissao_id'] == 1 ? 'Admin' : 'Comum') . "</td>";
                                         echo "<td>
-                                            <a class='btn btn-sm btn-primary' href='edit.php?id=$user_data[id]' title='Editar'>
+                                            <a class='btn btn-sm btn-success' href='edit.php?id=$user_data[id]' title='Editar'>
                                                 <i class='bi bi-pencil'></i>
                                             </a> 
                                             <a class='btn btn-sm btn-danger' href='delete.php?id=$user_data[id]' title='Deletar'>
