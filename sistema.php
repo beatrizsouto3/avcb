@@ -30,9 +30,6 @@
                 case 'email':
                     $sql = "SELECT * FROM usuarios WHERE email ILIKE '%$data%' ORDER BY id DESC";
                     break;
-                case 'cidade':
-                    $sql = "SELECT * FROM usuarios WHERE cidade ILIKE '%$data%' ORDER BY id DESC";
-                    break;
                 case 'id':
                     if(is_numeric($data)){
                         $sql = "SELECT * FROM usuarios WHERE id = $data ORDER BY id DESC";
@@ -191,7 +188,6 @@
                             <option value="todos" <?php echo (isset($_GET['filtro']) && $_GET['filtro'] == 'todos') ? 'selected' : ''; ?>>Geral</option>
                             <option value="nome" <?php echo (isset($_GET['filtro']) && $_GET['filtro'] == 'nome') ? 'selected' : ''; ?>>Nome</option>
                             <option value="email" <?php echo (isset($_GET['filtro']) && $_GET['filtro'] == 'email') ? 'selected' : ''; ?>>Email</option>
-                            <option value="cidade" <?php echo (isset($_GET['filtro']) && $_GET['filtro'] == 'cidade') ? 'selected' : ''; ?>>Cidade</option>
                             <option value="id" <?php echo (isset($_GET['filtro']) && $_GET['filtro'] == 'id') ? 'selected' : ''; ?>>ID</option>
                         </select>
 

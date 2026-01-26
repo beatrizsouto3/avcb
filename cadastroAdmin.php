@@ -7,6 +7,10 @@
         exit;
     }
 
+    $erroEmail = false;
+    
+    $nome = $email = $telefone = $data_nascimento = $permissao_id = "";
+
     if (isset($_POST['submit'])) {
 
         $nome = $_POST['nome'];
@@ -15,31 +19,41 @@
         $data_nascimento = $_POST['data_nascimento'];
         $permissao_id = $_POST['permissao_id'];
         
-        $senhaLimpa = substr(md5(time()), 0, 11);
-        $senha = md5($senhaLimpa); 
-        
-        $sql = "INSERT INTO usuarios (nome, email, senha, telefone, data_nascimento, permissao_id, primeiro_acesso) 
-                VALUES (:nome, :email, :senha, :telefone, :data_nascimento, :permissao_id, 'true')";
+        $sqlVerifica = "SELECT id FROM usuarios WHERE email = :email";
+        $stmtVerifica = $pdo->prepare($sqlVerifica);
+        $stmtVerifica->execute([':email' => $email]);
 
-        try {
-            $stmt = $pdo->prepare($sql);
-
-            $stmt->execute([
-                ':nome' => $nome,
-                ':email' => $email,
-                ':senha' => $senha,
-                ':telefone' => $telefone,
-                ':data_nascimento' => $data_nascimento,
-                ':permissao_id' => $permissao_id
-            ]);
+        if($stmtVerifica->rowCount() > 0){
+            $erroEmail = true;
+        }
+        else {
+            $senhaLimpa = substr(md5(time()), 0, 11);
+            $senha = md5($senhaLimpa); 
             
-            include_once('enviarEmail.php');
-            enviarEmailBoasVindas($nome, $email, $senhaLimpa);
-            
-            header('Location: sistema.php?page=usuarios&msg=cadastrado');
+            $sql = "INSERT INTO usuarios (nome, email, senha, telefone, data_nascimento, permissao_id, primeiro_acesso) 
+                    VALUES (:nome, :email, :senha, :telefone, :data_nascimento, :permissao_id, 'true')";
 
-        } catch (PDOException $e) {
-            echo "<script>alert('Erro ao cadastrar: " . $e->getMessage() . "');</script>";
+            try {
+                $stmt = $pdo->prepare($sql);
+
+                $stmt->execute([
+                    ':nome' => $nome,
+                    ':email' => $email,
+                    ':senha' => $senha,
+                    ':telefone' => $telefone,
+                    ':data_nascimento' => $data_nascimento,
+                    ':permissao_id' => $permissao_id
+                ]);
+                
+                include_once('enviarEmail.php');
+                enviarEmailBoasVindas($nome, $email, $senhaLimpa);
+                
+                header('Location: sistema.php?page=usuarios&msg=cadastrado');
+                exit;
+
+            } catch (PDOException $e) {
+                echo "<script>alert('Erro no sistema: " . $e->getMessage() . "');</script>";
+            }
         }
     }
 ?>
@@ -142,6 +156,16 @@
             padding: 5px;
             background-color: dodgerblue;
         }
+        .msg-erro {
+            background-color: rgba(255, 0, 0, 0.2);
+            color: #ffcccc;
+            border: 1px solid #ff4444;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -154,14 +178,20 @@
                 <legend><b>Novo Usuário (Admin)</b></legend>
                 <br>
                 
+                <?php if($erroEmail == true): ?>
+                    <div class="msg-erro">
+                        ⚠ E-mail já cadastrado! Insira outro.
+                    </div>
+                <?php endif; ?>
+
                 <div class="inputBox">
-                    <input type="text" name="nome" id="nome" class="inputUser" required placeholder=" ">
+                    <input type="text" name="nome" id="nome" class="inputUser" required placeholder=" " value="<?php echo $nome; ?>">
                     <label for="nome" class="labelInput">Nome completo</label>
                 </div>
                 <br><br>
                 
                 <div class="inputBox">
-                    <input type="email" name="email" id="email" class="inputUser" required placeholder=" ">
+                    <input type="email" name="email" id="email" class="inputUser" required placeholder=" " value="<?php echo $email; ?>">
                     <label for="email" class="labelInput">Email</label>
                 </div>
                 <br><br>
@@ -171,20 +201,20 @@
 
                 <label for="permissao"><b>Nível de Acesso:</b></label>
                 <select name="permissao_id" id="permissao">
-                    <option value="2" selected>Comum</option>
-                    <option value="1">Administrador</option>
+                    <option value="2" <?php echo ($permissao_id == 2) ? 'selected' : ''; ?>>Comum</option>
+                    <option value="1" <?php echo ($permissao_id == 1) ? 'selected' : ''; ?>>Administrador</option>
                 </select>
                 <br><br>
 
                 <div class="inputBox">
-                    <input type="tel" name="telefone" id="telefone" class="inputUser" required placeholder=" ">
+                    <input type="tel" name="telefone" id="telefone" class="inputUser" required placeholder=" " value="<?php echo $telefone; ?>">
                     <label for="telefone" class="labelInput">Telefone</label>
                 </div>
                 <br><br>
 
                 <label for="data_nascimento"><b>Data de Nascimento:</b></label>
                 <br>
-                <input type="date" name="data_nascimento" id="data_nascimento" required>
+                <input type="date" name="data_nascimento" id="data_nascimento" required value="<?php echo $data_nascimento; ?>">
                 <br><br>
 
                 <input type="submit" name="submit" id="submit" class="btn-custom" value="Cadastrar Usuário">

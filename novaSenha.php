@@ -2,10 +2,15 @@
     session_start();
     include_once('config.php');
 
-    if(!isset($_SESSION['email'])){
+    if((!isset($_SESSION['email']) == true) or (!isset($_SESSION['id_usuario']) == true)){
+        unset($_SESSION['email']);
+        unset($_SESSION['senha']);
         header('Location: login.php');
         exit;
     }
+
+    $sucesso = false;
+    $erro = false;
 
     if(isset($_POST['submit'])){
         $nova_senha = $_POST['nova_senha'];
@@ -25,9 +30,9 @@
 
             $_SESSION['senha'] = $senha_md5;
             
-            echo "<script>alert('Senha alterada com sucesso!'); window.location='sistema.php';</script>";
+            $sucesso = true;
         } else {
-            echo "<script>alert('As senhas não conferem!');</script>";
+            $erro = true;
         }
     }
 ?>
@@ -47,14 +52,15 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            color: white;
         }
         .box{
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.6);
             padding: 40px;
             border-radius: 15px;
-            color: white;
             text-align: center;
-            width: 300px;
+            min-width: 350px;
+            max-width: 500px;
         }
         input{
             padding: 15px;
@@ -63,35 +69,73 @@
             border: none;
             outline: none;
             margin-bottom: 20px;
+            font-size: 15px;
         }
-        button{
-            background-color: dodgerblue;
+        .btn-custom {
+            background-image: linear-gradient(to right,rgb(0, 92, 197), rgb(90, 20, 220));
+            width: 100%;
             border: none;
             padding: 15px;
-            width: 100%;
-            border-radius: 10px;
             color: white;
             font-size: 16px;
             cursor: pointer;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
         }
-        button:hover{
-            background-color: deepskyblue;
+        .btn-custom:hover{
+            background-image: linear-gradient(to right,rgb(0, 80, 172), rgb(80, 19, 195));
         }
         h2{ margin-bottom: 20px; }
         p { font-size: 14px; color: #ccc; margin-bottom: 30px;}
+
+        .sucesso-titulo { color: deepskyblue; font-size: 1.5rem; margin-bottom: 15px; }
+        .sucesso-texto { font-size: 1.1rem; margin-bottom: 30px; color: white; }
+        
+        .msg-erro {
+            color: #ffcccc;
+            background-color: rgba(255, 0, 0, 0.2);
+            padding: 10px;
+            border: 1px solid red;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>Bem-vindo(a)!</h2>
-        <p>Como este é seu primeiro acesso com a senha temporária, você precisa definir uma senha segura e pessoal.</p>
+    
+    <?php if($sucesso == true): ?>
         
-        <form action="novaSenha.php" method="POST">
-            <input type="password" name="nova_senha" placeholder="Nova Senha" required minlength="4">
-            <input type="password" name="confirmar_senha" placeholder="Confirme a Nova Senha" required minlength="4">
+        <div class="box">
+            <h2 class="sucesso-titulo">Tudo pronto!</h2>
+            <p class="sucesso-texto">Sua senha definitiva foi criada com sucesso.</p>
             
-            <button type="submit" name="submit">Salvar Senha e Entrar</button>
-        </form>
-    </div>
+            <a href="sistema.php" class="btn-custom">Entrar no Sistema</a>
+        </div>
+
+    <?php else: ?>
+
+        <div class="box">
+            <h2>Criar Senha</h2>
+            <p>Como este é seu primeiro acesso, defina sua senha pessoal.</p>
+            
+            <?php if($erro == true): ?>
+                <div class="msg-erro">
+                    As senhas digitadas não coincidem. Tente novamente.
+                </div>
+            <?php endif; ?>
+
+            <form action="novaSenha.php" method="POST">
+                <input type="password" name="nova_senha" placeholder="Nova Senha" required minlength="4">
+                <input type="password" name="confirmar_senha" placeholder="Confirme a Nova Senha" required minlength="4">
+                
+                <button type="submit" name="submit" class="btn-custom">Salvar e Entrar</button>
+            </form>
+        </div>
+
+    <?php endif; ?>
+
 </body>
 </html>
