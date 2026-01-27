@@ -57,7 +57,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
     <title>SISTEMA | AVCB</title>
@@ -71,11 +71,30 @@
             background: rgba(0,0,0,0.3);
             border-radius: 15px 15px 0 0;
         }
+        
         .sidebar {
             min-height: 100vh;
             background-color: rgba(0, 0, 0, 0.2);
             border-right: 1px solid rgba(255,255,255,0.1);
         }
+        
+        @media (max-width: 767.98px) {
+            .sidebar {
+                min-height: auto !important;
+                border-right: none;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+            .box-search {
+                flex-direction: column;
+            }
+            .form-select-custom, #pesquisar, .btn-success {
+                width: 100% !important;
+                margin-bottom: 10px;
+            }
+        }
+
         .nav-link {
             color: white;
             font-size: 1.1rem;
@@ -104,25 +123,12 @@
 </head>
 <body>
 
-    <?php
-    if(isset($_GET['msg'])){
+    <?php if(isset($_GET['msg'])){
         $msg = $_GET['msg'];
-        
-        $toastClass = "bg-secondary";
-        $toastMsg = "Ação realizada.";
-        
-        if($msg == 'deletado'){
-            $toastClass = "bg-danger";
-            $toastMsg = "Usuário excluído com sucesso!";
-        }
-        else if($msg == 'atualizado'){
-            $toastClass = "bg-success";
-            $toastMsg = "Dados atualizados com sucesso!";
-        }
-        else if($msg == 'cadastrado'){
-            $toastClass = "bg-success";
-            $toastMsg = "Usuário cadastrado com sucesso!";
-        }
+        $toastClass = "bg-secondary"; $toastMsg = "Ação realizada.";
+        if($msg == 'deletado'){ $toastClass = "bg-danger"; $toastMsg = "Usuário excluído com sucesso!"; }
+        else if($msg == 'atualizado'){ $toastClass = "bg-success"; $toastMsg = "Dados atualizados com sucesso!"; }
+        else if($msg == 'cadastrado'){ $toastClass = "bg-success"; $toastMsg = "Usuário cadastrado com sucesso!"; }
     ?>
     <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast align-items-center text-white <?php echo $toastClass; ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -135,19 +141,22 @@
         </div>
     </div>
     <?php } ?>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="sistema.php">Sistema | AVCB</a>
-            <div class="d-flex">
-                <a href="sair.php" class="btn btn-danger me-2">Sair</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="d-flex d-none d-lg-block"> <a href="sair.php" class="btn btn-danger me-2">Sair</a>
             </div>
         </div>
     </nav>
 
     <div class="container-fluid">
         <div class="row">
-            <nav class="col-md-2 d-md-block sidebar py-4">
-                <div class="position-sticky">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link <?php echo ($pagina_atual == 'home') ? 'active' : ''; ?>" href="sistema.php">
@@ -161,21 +170,27 @@
                                 </a>
                             </li>
                         <?php endif; ?>
+                        
+                        <li class="nav-item d-md-none mt-3">
+                             <a class="nav-link text-danger" href="sair.php">
+                                <i class="bi bi-box-arrow-right me-2"></i> Sair
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
 
-            <main class="col-md-10 ms-sm-auto px-md-4 py-4 text-center">
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 text-center">
                 
                 <?php if($pagina_atual == 'home'){ ?>
-                    <div class="mt-5">
+                    <div class="mt-4">
                         <i class="bi bi-shield-check" style="font-size: 5rem;"></i>
                         <h1 class="display-4">Bem vindo ao Sistema</h1>
                         <h3>Usuário logado: <u><?php echo $logado; ?></u></h3>
                     </div>
 
                 <?php } elseif($pagina_atual == 'usuarios'){ ?>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom border-light">
                         <h2>Gestão de Usuários</h2>
                         <a href="cadastroAdmin.php" class="btn btn-success"><i class="bi bi-person-plus-fill"></i> Novo Usuário</a>
                     </div>
@@ -202,8 +217,8 @@
                                     <th scope="col">#</th>
                                     <th scope="col">Nome</th>
                                     <th scope="col">Email</th>
-                                    <th scope="col">Telefone</th>
-                                    <th scope="col">Permissão</th> 
+                                    <th scope="col">Tel</th>
+                                    <th scope="col">Nível</th> 
                                     <th scope="col">Ações</th>
                                 </tr>
                             </thead>
@@ -217,10 +232,10 @@
                                         echo "<td>" . $user_data['telefone'] . "</td>";
                                         echo "<td>" . ($user_data['permissao_id'] == 1 ? 'Admin' : 'Comum') . "</td>";
                                         echo "<td>
-                                            <a class='btn btn-sm btn-success' href='edit.php?id=$user_data[id]' title='Editar'>
+                                            <a class='btn btn-sm btn-success' href='edit.php?id=$user_data[id]'>
                                                 <i class='bi bi-pencil'></i>
                                             </a> 
-                                            <a class='btn btn-sm btn-danger' href='delete.php?id=$user_data[id]' title='Deletar'>
+                                            <a class='btn btn-sm btn-danger' href='delete.php?id=$user_data[id]'>
                                                 <i class='bi bi-trash-fill'></i>
                                             </a>
                                             </td>";
@@ -236,29 +251,22 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
         var search = document.getElementById('pesquisar');
         var filtro = document.getElementById('filtro');
 
         if(search){
             search.addEventListener("keydown", function(event) {
-                if (event.key === "Enter") {
-                    searchData();
-                }
+                if (event.key === "Enter") { searchData(); }
             });
         }
-
         function searchData(){
             window.location = 'sistema.php?page=usuarios&busca='+search.value+'&filtro='+filtro.value;
         }
-
         window.onload = function() {
             var toastEl = document.getElementById('liveToast');
             if (toastEl) {
-                var toast = new bootstrap.Toast(toastEl, {
-                    delay: 4000
-                });
+                var toast = new bootstrap.Toast(toastEl, { delay: 4000 });
                 toast.show();
             }
         }

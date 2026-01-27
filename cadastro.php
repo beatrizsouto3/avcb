@@ -5,7 +5,6 @@ $erroEmail = false;
 $nome = $email = $telefone = $data_nascimento = "";
 
 if (isset($_POST['submit'])) {
-
     include_once('config.php');
 
     $nome = $_POST['nome'];
@@ -21,7 +20,6 @@ if (isset($_POST['submit'])) {
         $erroEmail = true;
     }
     else {
-        
         $senhaLimpa = substr(md5(time()), 0, 11);
         $senha = md5($senhaLimpa); 
         
@@ -30,7 +28,6 @@ if (isset($_POST['submit'])) {
 
         try {
             $stmt = $pdo->prepare($sql);
-
             $stmt->execute([
                 ':nome' => $nome,
                 ':email' => $email,
@@ -55,39 +52,46 @@ if (isset($_POST['submit'])) {
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Cadastro</title>
     <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
             background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
         }
         .box{
             color: white;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%,-50%);
             background-color: rgba(0, 0, 0, 0.6);
-            padding: 35px;
+            padding: 30px;
             border-radius: 15px;
-            min-width: 420px; 
-            max-width: 600px;
+            width: 100%;
+            max-width: 500px;
         }
         fieldset{
-            border: 3px solid limegreen;
+            border: 2px solid limegreen;
             padding: 20px; 
+            border-radius: 10px;
         }
         legend{
+            float: none;
+            width: auto;
             border: 1px solid limegreen;
-            padding: 10px;
+            padding: 5px 15px;
             text-align: center;
             background-color: limegreen;
             border-radius: 8px;
             color: black;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
         }
-        .inputBox{ position: relative; }
+        .inputBox{ position: relative; margin-bottom: 30px; }
         .inputUser{
             background: none;
             border: none;
@@ -97,6 +101,7 @@ if (isset($_POST['submit'])) {
             font-size: 15px;
             width: 100%;
             letter-spacing: 2px;
+            padding: 5px;
         }
         .labelInput{
             position: absolute;
@@ -113,14 +118,13 @@ if (isset($_POST['submit'])) {
         }
         #data_nascimento{
             border: none;
-            padding: 8px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 5px;
             outline: none;
             font-size: 15px;
-            color: #757575;
+            color: black;
             width: 100%;
-            background: rgba(255,255,255,0.1);
-            color: white;
+            background: rgba(255,255,255,0.9);
         }
         
         .btn-custom {
@@ -129,27 +133,23 @@ if (isset($_POST['submit'])) {
             border: none;
             padding: 15px;
             color: white;
-            font-size: 15px;
+            font-size: 16px;
             cursor: pointer;
             border-radius: 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            box-sizing: border-box;
-            margin-top: 10px;
+            margin-top: 15px;
+            font-weight: bold;
         }
         .btn-custom:hover{
             background-image: linear-gradient(to right, rgb(34, 139, 34), rgb(0, 100, 0));
         }
 
-        a.voltar{
+        .btn-voltar{
             text-decoration: none;
             color: white;
-            border: 2px solid limegreen;
+            border: 1px solid limegreen;
             border-radius: 5px;
-            padding: 5px;
-            background-color: limegreen;
-            color: black;
+            padding: 5px 10px;
+            background-color: transparent;
         }
         
         .sucesso-container { text-align: center; }
@@ -186,12 +186,11 @@ if (isset($_POST['submit'])) {
     <?php else: ?>
 
         <div class="box">
-            <a href="inicio.php" class="voltar">⭠ Voltar</a>
+            <a href="inicio.php" class="btn-voltar">⭠ Voltar</a>
             <br><br>
             <form action="cadastro.php" method="POST">
                 <fieldset>
-                    <legend><b>Cadastro Simplificado</b></legend>
-                    <br>
+                    <legend><b>Cadastro</b></legend>
 
                     <?php if($erroEmail == true): ?>
                         <div class="msg-erro">
@@ -203,27 +202,21 @@ if (isset($_POST['submit'])) {
                         <input type="text" name="nome" id="nome" class="inputUser" required placeholder=" " value="<?php echo $nome; ?>">
                         <label for="nome" class="labelInput">Nome completo</label>
                     </div>
-                    <br><br>
                     
                     <div class="inputBox">
                         <input type="email" name="email" id="email" class="inputUser" required placeholder=" " value="<?php echo $email; ?>">
                         <label for="email" class="labelInput">Email</label>
                     </div>
-                    <br><br>
                     
-                    <p style="font-size: 12px; color: yellow;">* A senha será enviada para o seu e-mail.</p>
-                    <br>
+                    <p style="font-size: 12px; color: yellow; margin-bottom: 20px;">* A senha será enviada para o seu e-mail.</p>
 
                     <div class="inputBox">
                         <input type="tel" name="telefone" id="telefone" class="inputUser" required placeholder=" " value="<?php echo $telefone; ?>">
                         <label for="telefone" class="labelInput">Telefone</label>
                     </div>
-                    <br><br>
 
-                    <label for="data_nascimento"><b>Data de Nascimento:</b></label>
-                    <br>
+                    <label for="data_nascimento" style="margin-bottom: 5px; display:block;"><b>Data de Nascimento:</b></label>
                     <input type="date" name="data_nascimento" id="data_nascimento" required value="<?php echo $data_nascimento; ?>">
-                    <br><br>
 
                     <input type="submit" name="submit" id="submit" class="btn-custom" value="Enviar">
                 </fieldset>

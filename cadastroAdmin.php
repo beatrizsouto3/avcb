@@ -8,11 +8,9 @@
     }
 
     $erroEmail = false;
-    
     $nome = $email = $telefone = $data_nascimento = $permissao_id = "";
 
     if (isset($_POST['submit'])) {
-
         $nome = $_POST['nome'];
         $email = $_POST['email'];
         $telefone = $_POST['telefone'];
@@ -35,7 +33,6 @@
 
             try {
                 $stmt = $pdo->prepare($sql);
-
                 $stmt->execute([
                     ':nome' => $nome,
                     ':email' => $email,
@@ -62,39 +59,46 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Cadastro Admin</title>
     <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
             background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
         }
         .box{
             color: white;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%,-50%);
             background-color: rgba(0, 0, 0, 0.6);
-            padding: 35px;
+            padding: 30px;
             border-radius: 15px;
-            min-width: 420px;
-            max-width: 600px;
+            width: 100%;
+            max-width: 500px;
         }
         fieldset{
-            border: 3px solid limegreen;
+            border: 2px solid limegreen;
             padding: 20px;
+            border-radius: 10px;
         }
         legend{
+            float: none;
+            width: auto;
             border: 1px solid limegreen;
-            padding: 10px;
+            padding: 5px 15px;
             text-align: center;
             background-color: limegreen;
             border-radius: 8px;
             color: black;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
         }
-        .inputBox{ position: relative; }
+        .inputBox{ position: relative; margin-bottom: 30px; }
         .inputUser{
             background: none;
             border: none;
@@ -104,6 +108,7 @@
             font-size: 15px;
             width: 100%;
             letter-spacing: 2px;
+            padding: 5px;
         }
         .labelInput{
             position: absolute;
@@ -118,15 +123,16 @@
             font-size: 12px;
             color: limegreen;
         }
-        #data_nascimento{
+        #data_nascimento, select{
             border: none;
-            padding: 8px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 5px;
             outline: none;
             font-size: 15px;
             width: 100%;
-            background: rgba(255,255,255,0.1);
-            color: white;
+            background: rgba(255,255,255,0.9);
+            color: black;
+            margin-bottom: 10px;
         }
         .btn-custom {
             background-image: linear-gradient(to right, rgb(50, 205, 50), rgb(34, 139, 34));
@@ -137,26 +143,16 @@
             font-size: 15px;
             cursor: pointer;
             border-radius: 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            box-sizing: border-box;
             margin-top: 15px;
+            font-weight: bold;
         }
-        select {
-            padding: 8px;
-            border-radius: 10px;
-            outline: none;
-            width: 100%;
-        }
-        a.voltar{
+        .btn-voltar{
             text-decoration: none;
             color: white;
-            border: 2px solid limegreen;
+            border: 1px solid limegreen;
             border-radius: 5px;
-            padding: 5px;
-            background-color: limegreen;
-            color: black;
+            padding: 5px 10px;
+            background-color: transparent;
         }
         .msg-erro {
             background-color: rgba(255, 0, 0, 0.2);
@@ -171,14 +167,12 @@
     </style>
 </head>
 <body>
-
     <div class="box">
-        <a href="sistema.php?page=usuarios" class="voltar">⭠ Voltar</a>
+        <a href="sistema.php?page=usuarios" class="btn-voltar">⭠ Voltar</a>
         <br><br>
         <form action="cadastroAdmin.php" method="POST">
             <fieldset>
-                <legend><b>Novo Usuário (Admin)</b></legend>
-                <br>
+                <legend><b>Novo Usuário</b></legend>
                 
                 <?php if($erroEmail == true): ?>
                     <div class="msg-erro">
@@ -190,39 +184,32 @@
                     <input type="text" name="nome" id="nome" class="inputUser" required placeholder=" " value="<?php echo $nome; ?>">
                     <label for="nome" class="labelInput">Nome completo</label>
                 </div>
-                <br><br>
                 
                 <div class="inputBox">
                     <input type="email" name="email" id="email" class="inputUser" required placeholder=" " value="<?php echo $email; ?>">
                     <label for="email" class="labelInput">Email</label>
                 </div>
-                <br><br>
                 
-                <p style="font-size: 12px; color: yellow;">* A senha temporária será enviada por e-mail.</p>
-                <br>
+                <p style="font-size: 12px; color: yellow; margin-bottom: 15px;">* A senha temporária será enviada por e-mail.</p>
 
-                <label for="permissao"><b>Nível de Acesso:</b></label>
+                <label for="permissao" style="display:block; margin-bottom:5px;"><b>Nível de Acesso:</b></label>
                 <select name="permissao_id" id="permissao">
                     <option value="2" <?php echo ($permissao_id == 2) ? 'selected' : ''; ?>>Comum</option>
                     <option value="1" <?php echo ($permissao_id == 1) ? 'selected' : ''; ?>>Administrador</option>
                 </select>
-                <br><br>
+                <br>
 
                 <div class="inputBox">
                     <input type="tel" name="telefone" id="telefone" class="inputUser" required placeholder=" " value="<?php echo $telefone; ?>">
                     <label for="telefone" class="labelInput">Telefone</label>
                 </div>
-                <br><br>
 
-                <label for="data_nascimento"><b>Data de Nascimento:</b></label>
-                <br>
+                <label for="data_nascimento" style="display:block; margin-bottom:5px;"><b>Data de Nascimento:</b></label>
                 <input type="date" name="data_nascimento" id="data_nascimento" required value="<?php echo $data_nascimento; ?>">
-                <br><br>
 
                 <input type="submit" name="submit" id="submit" class="btn-custom" value="Cadastrar Usuário">
             </fieldset>
         </form>
     </div>
-
 </body>
 </html>
