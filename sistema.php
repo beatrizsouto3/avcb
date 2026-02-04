@@ -17,36 +17,22 @@
     }
 
     if($pagina_atual == 'usuarios'){
-        
-        if(!empty($_GET['busca']))
-        {
+        if(!empty($_GET['busca'])) {
             $data = $_GET['busca'];
             $filtro = isset($_GET['filtro']) ? $_GET['filtro'] : 'todos';
 
             switch($filtro){
-                case 'nome':
-                    $sql = "SELECT * FROM usuarios WHERE nome ILIKE '%$data%' ORDER BY id DESC";
+                case 'nome': $sql = "SELECT * FROM usuarios WHERE nome ILIKE '%$data%' ORDER BY id DESC"; break;
+                case 'email': $sql = "SELECT * FROM usuarios WHERE email ILIKE '%$data%' ORDER BY id DESC"; break;
+                case 'id': 
+                    if(is_numeric($data)){ $sql = "SELECT * FROM usuarios WHERE id = $data ORDER BY id DESC"; } 
+                    else { $sql = "SELECT * FROM usuarios ORDER BY id DESC"; }
                     break;
-                case 'email':
-                    $sql = "SELECT * FROM usuarios WHERE email ILIKE '%$data%' ORDER BY id DESC";
-                    break;
-                case 'id':
-                    if(is_numeric($data)){
-                        $sql = "SELECT * FROM usuarios WHERE id = $data ORDER BY id DESC";
-                    } else {
-                        $sql = "SELECT * FROM usuarios ORDER BY id DESC";
-                    }
-                    break;
-                default:
-                    $sql = "SELECT * FROM usuarios WHERE id::text LIKE '%$data%' OR nome ILIKE '%$data%' OR email ILIKE '%$data%' ORDER BY id DESC";
-                    break;
+                default: $sql = "SELECT * FROM usuarios WHERE id::text LIKE '%$data%' OR nome ILIKE '%$data%' OR email ILIKE '%$data%' ORDER BY id DESC"; break;
             }
-        }
-        else
-        {
+        } else {
             $sql = "SELECT * FROM usuarios ORDER BY id DESC";
         }
-        
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
     }
@@ -86,39 +72,15 @@
                 padding-bottom: 10px;
                 margin-bottom: 20px;
             }
-            .box-search {
-                flex-direction: column;
-            }
-            .form-select-custom, #pesquisar, .btn-success {
-                width: 100% !important;
-                margin-bottom: 10px;
-            }
+            .box-search { flex-direction: column; }
+            .form-select-custom, #pesquisar, .btn-success { width: 100% !important; margin-bottom: 10px; }
         }
 
-        .nav-link {
-            color: white;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: limegreen;
-        }
-        .nav-link.active {
-            background-color: limegreen;
-            color: black;
-        }
-        .box-search{
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        .form-select-custom {
-            width: 150px;
-            border-radius: 5px;
-            padding: 5px;
-        }
+        .nav-link { color: white; font-size: 1.1rem; margin-bottom: 10px; border-radius: 5px; }
+        .nav-link:hover { background-color: rgba(255, 255, 255, 0.1); color: limegreen; }
+        .nav-link.active { background-color: limegreen; color: black; }
+        .box-search{ display: flex; justify-content: center; gap: 10px; }
+        .form-select-custom { width: 150px; border-radius: 5px; padding: 5px; }
     </style>
 </head>
 <body>
@@ -126,9 +88,15 @@
     <?php if(isset($_GET['msg'])){
         $msg = $_GET['msg'];
         $toastClass = "bg-secondary"; $toastMsg = "Ação realizada.";
+        
         if($msg == 'deletado'){ $toastClass = "bg-danger"; $toastMsg = "Usuário excluído com sucesso!"; }
         else if($msg == 'atualizado'){ $toastClass = "bg-success"; $toastMsg = "Dados atualizados com sucesso!"; }
         else if($msg == 'cadastrado'){ $toastClass = "bg-success"; $toastMsg = "Usuário cadastrado com sucesso!"; }
+        else if($msg == 'doc_sucesso'){ $toastClass = "bg-success"; $toastMsg = "Documento anexado com sucesso!"; }
+        else if($msg == 'doc_deletado'){ $toastClass = "bg-danger"; $toastMsg = "Documento excluído com sucesso!"; }
+        else if($msg == 'erro_tamanho'){ $toastClass = "bg-warning text-dark"; $toastMsg = "Arquivo muito grande! (Max: 5MB)"; }
+        else if($msg == 'sem_permissao'){ $toastClass = "bg-warning text-dark"; $toastMsg = "Apenas administradores podem excluir!"; }
+        else if($msg == 'doc_erro'){ $toastClass = "bg-danger"; $toastMsg = "Erro ao processar documento."; }
     ?>
     <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast align-items-center text-white <?php echo $toastClass; ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -148,7 +116,8 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="d-flex d-none d-lg-block"> <a href="sair.php" class="btn btn-danger me-2">Sair</a>
+            <div class="d-flex d-none d-lg-block"> 
+                <a href="sair.php" class="btn btn-danger me-2">Sair</a>
             </div>
         </div>
     </nav>
@@ -163,6 +132,13 @@
                                 <i class="bi bi-house-door-fill me-2"></i> Início
                             </a>
                         </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo ($pagina_atual == 'documentos') ? 'active' : ''; ?>" href="sistema.php?page=documentos">
+                                <i class="bi bi-file-earmark-text-fill me-2"></i> Documentos
+                            </a>
+                        </li>
+
                         <?php if(isset($_SESSION['permissao']) && $_SESSION['permissao'] == 1): ?>
                             <li class="nav-item">
                                 <a class="nav-link <?php echo ($pagina_atual == 'usuarios') ? 'active' : ''; ?>" href="sistema.php?page=usuarios">
@@ -187,6 +163,83 @@
                         <i class="bi bi-shield-check" style="font-size: 5rem;"></i>
                         <h1 class="display-4">Bem vindo ao Sistema</h1>
                         <h3>Usuário logado: <u><?php echo $logado; ?></u></h3>
+                    </div>
+
+                <?php } elseif($pagina_atual == 'documentos'){ 
+                    
+                    $id_usuario_logado = $_SESSION['id_usuario'];
+                    $nivel_permissao = $_SESSION['permissao'];
+
+                    if($nivel_permissao == 1){
+                        $sqlDocs = "SELECT d.*, u.nome as nome_usuario 
+                                    FROM documentos d 
+                                    JOIN usuarios u ON d.usuario_id = u.id 
+                                    ORDER BY d.data_upload DESC";
+                    } 
+                    else {
+                        $sqlDocs = "SELECT d.*, u.nome as nome_usuario 
+                                    FROM documentos d 
+                                    JOIN usuarios u ON d.usuario_id = u.id 
+                                    WHERE d.usuario_id = $id_usuario_logado
+                                    ORDER BY d.data_upload DESC";
+                    }
+
+                    $stmtDocs = $pdo->prepare($sqlDocs);
+                    $stmtDocs->execute();
+                ?>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2>Gestão de Documentos</h2>
+                        <a href="cadastroDocumento.php" class="btn btn-success">
+                            <i class="bi bi-file-earmark-plus"></i> Novo Documento
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table text-white table-bg">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Código</th>
+                                    <th scope="col">Tipo</th>
+                                    <th scope="col">Arquivo</th>
+                                    <th scope="col">Enviado por</th>
+                                    <th scope="col">Data</th>
+                                    <th scope="col">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                    if($stmtDocs->rowCount() == 0){
+                                        echo "<tr><td colspan='6'>Nenhum documento encontrado.</td></tr>";
+                                    } else {
+                                        while($doc = $stmtDocs->fetch(PDO::FETCH_ASSOC)){
+                                            $dataForm = date('d/m/Y H:i', strtotime($doc['data_upload']));
+                                            
+                                            echo "<tr>";
+                                            echo "<td>" . $doc['codigo_identificador'] . "</td>";
+                                            echo "<td>" . $doc['tipo_documento'] . "</td>";
+                                            echo "<td>" . $doc['caminho_arquivo'] . "</td>";
+                                            echo "<td>" . $doc['nome_usuario'] . "</td>";
+                                            echo "<td>" . $dataForm . "</td>";
+                                            
+                                            echo "<td>
+                                                <a href='uploads/" . $doc['caminho_arquivo'] . "' target='_blank' class='btn btn-sm btn-light' title='Visualizar'>
+                                                    <i class='bi bi-eye-fill text-success'></i>
+                                                </a>
+                                                ";
+                                                
+                                                if($_SESSION['permissao'] == 1){
+                                                    echo "<a class='btn btn-sm btn-danger ms-1' href='deleteDoc.php?id=" . $doc['id'] . "' title='Excluir' onclick=\"return confirm('Tem certeza que deseja apagar este documento permanentemente?')\">
+                                                        <i class='bi bi-trash-fill'></i>
+                                                    </a>";
+                                                }
+                                                
+                                            echo "</td>";
+                                            echo "</tr>";
+                                        }
+                                    }
+                                ?>
+                            </tbody>
+                        </table>
                     </div>
 
                 <?php } elseif($pagina_atual == 'usuarios'){ ?>
