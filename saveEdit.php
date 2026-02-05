@@ -10,36 +10,94 @@
     if(isset($_POST['update']))
     {
         $id = $_POST['id'];
+        
         $nome = $_POST['nome'];
+        $nome_fantasia = $_POST['nome_fantasia'];
         $email = $_POST['email'];
+        $data_referencia = !empty($_POST['data_referencia']) ? $_POST['data_referencia'] : null;
+
         $senhaPost = $_POST['senha'];
-        $senha = !empty($senhaPost) ? md5($senhaPost) : '';
+        $senhaUpdate = "";
+        if(!empty($senhaPost)){
+            $senhaMd5 = md5($senhaPost);
+            $senhaUpdate = ", senha = '$senhaMd5'"; 
+        }
+
+        $tipo_cliente = $_POST['tipo_cliente'];
+        $cpf_cnpj = ($tipo_cliente == 'PJ') ? $_POST['cnpj'] : $_POST['cpf'];
+        
+        $rg = $_POST['rg'];
+        $inscricao_estadual = $_POST['inscricao_estadual'];
+        
+        $representante_nome = $_POST['representante_nome'];
+        $representante_cpf = $_POST['representante_cpf'];
+        $representante_cargo = $_POST['representante_cargo'];
+
+        $cep = $_POST['cep']; 
+        $logradouro = $_POST['logradouro']; 
+        $numero = $_POST['numero'];
+        $complemento = $_POST['complemento']; 
+        $bairro = $_POST['bairro'];
+        $cidade = $_POST['cidade']; 
+        $estado = $_POST['estado'];
 
         $telefone = $_POST['telefone'];
-        $data_nascimento = $_POST['data_nascimento'];
-        $permissao_id = $_POST['permissao_id']; 
-        
-        $sql = "UPDATE usuarios 
-                SET nome = :nome, 
-                    email = :email, 
-                    senha = CASE WHEN :senha = '' THEN senha ELSE :senha END, 
-                    telefone = :telefone, 
-                    data_nascimento = :data_nascimento, 
+        $celular = $_POST['celular'];
+        $perfil_cliente = $_POST['perfil_cliente'];
+        $origem_contato = $_POST['origem_contato'];
+        $observacoes = $_POST['observacoes'];
+        $permissao_id = $_POST['permissao_id'];
+
+        $sql = "UPDATE usuarios SET 
+                    nome = :nome, 
+                    nome_fantasia = :nome_fantasia,
+                    email = :email,
+                    data_nascimento_fundacao = :data_referencia,
+                    tipo_cliente = :tipo_cliente,
+                    cpf_cnpj = :cpf_cnpj,
+                    rg = :rg,
+                    inscricao_estadual = :inscricao_estadual,
+                    representante_nome = :representante_nome,
+                    representante_cpf = :representante_cpf,
+                    representante_cargo = :representante_cargo,
+                    cep = :cep,
+                    logradouro = :logradouro,
+                    numero = :numero,
+                    complemento = :complemento,
+                    bairro = :bairro,
+                    cidade = :cidade,
+                    estado = :estado,
+                    telefone = :telefone,
+                    celular = :celular,
+                    perfil_cliente = :perfil_cliente,
+                    origem_contato = :origem_contato,
+                    observacoes = :observacoes,
                     permissao_id = :permissao_id
+                    $senhaUpdate
                 WHERE id = :id";
         
-        $stmt = $pdo->prepare($sql);
-        
-        $stmt->execute([
-            ':nome' => $nome,
-            ':email' => $email,
-            ':senha' => $senha,
-            ':telefone' => $telefone,
-            ':data_nascimento' => $data_nascimento,
-            ':permissao_id' => $permissao_id,
-            ':id' => $id
-        ]);
-    }
+        try {
+            $stmt = $pdo->prepare($sql);
+            
+            $stmt->execute([
+                ':nome' => $nome, ':nome_fantasia' => $nome_fantasia, ':email' => $email,
+                ':data_referencia' => $data_referencia, ':tipo_cliente' => $tipo_cliente,
+                ':cpf_cnpj' => $cpf_cnpj, ':rg' => $rg, ':inscricao_estadual' => $inscricao_estadual,
+                ':representante_nome' => $representante_nome, ':representante_cpf' => $representante_cpf, ':representante_cargo' => $representante_cargo,
+                ':cep' => $cep, ':logradouro' => $logradouro, ':numero' => $numero, ':complemento' => $complemento,
+                ':bairro' => $bairro, ':cidade' => $cidade, ':estado' => $estado,
+                ':telefone' => $telefone, ':celular' => $celular, 
+                ':perfil_cliente' => $perfil_cliente, ':origem_contato' => $origem_contato,
+                ':observacoes' => $observacoes, ':permissao_id' => $permissao_id,
+                ':id' => $id
+            ]);
 
-    header('Location: sistema.php?page=usuarios&msg=atualizado');
+            header('Location: sistema.php?page=usuarios&msg=atualizado');
+        } catch (PDOException $e) {
+            echo "Erro ao atualizar: " . $e->getMessage();
+        }
+    }
+    else {
+        header('Location: sistema.php?page=usuarios');
+    }
 ?>
