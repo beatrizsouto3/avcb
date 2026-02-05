@@ -52,7 +52,7 @@
     <h1>Autos de Vistoria do Corpo de Bombeiros - RN</h1>
     <div class="box">
         <a href="login.php" class="btn-inicio">Login</a>
-        <a href="cadastro.php" class="btn-inicio">Cadastre-se</a>
+        <a href="cadastro.php" class="btn-inicio">Registre-se</a>
     </div>
 </body>
 </html>

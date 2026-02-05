@@ -96,7 +96,8 @@ if (isset($_POST['submit'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <title>Cadastro Completo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <title>Registro</title>
     <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
@@ -104,42 +105,53 @@ if (isset($_POST['submit'])) {
             min-height: 100vh;
             padding: 20px;
             color: white;
+            display: flex;
+            align-items: center; 
+            justify-content: center;
         }
         .container-box {
             background-color: rgba(0, 0, 0, 0.7);
             padding: 30px;
             border-radius: 15px;
             max-width: 900px;
+            width: 100%;
             margin: auto;
         }
         fieldset { border: 1px solid limegreen; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        legend { 
-            float: none; width: auto; background-color: limegreen; 
-            padding: 5px 15px; border-radius: 5px; color: black; font-weight: bold; font-size: 1rem;
-        }
+        legend { float: none; width: auto; background-color: limegreen; padding: 5px 15px; border-radius: 5px; color: black; font-weight: bold; font-size: 1rem; }
         label { font-weight: bold; margin-bottom: 5px; display: block; font-size: 0.9rem; }
-        .form-control, .form-select {
-            background: rgba(255,255,255,0.9);
-            border: none; margin-bottom: 15px;
-        }
-        .btn-custom {
-            background-image: linear-gradient(to right, rgb(50, 205, 50), rgb(34, 139, 34));
-            width: 100%; border: none; padding: 15px; color: white; font-size: 16px;
-            cursor: pointer; border-radius: 10px; font-weight: bold; margin-top: 10px;
-        }
+        .form-control, .form-select { background: rgba(255,255,255,0.9); border: none; margin-bottom: 15px; }
+        .btn-custom { background-image: linear-gradient(to right, rgb(50, 205, 50), rgb(34, 139, 34)); width: 100%; border: none; padding: 15px; color: white; font-size: 16px; cursor: pointer; border-radius: 10px; font-weight: bold; margin-top: 10px; }
         .hidden { display: none; }
         .row { display: flex; flex-wrap: wrap; gap: 15px; }
         .col-half { flex: 1 1 45%; }
         .col-full { flex: 1 1 100%; }
         .msg-erro { background: #ffcccc; color: #cc0000; padding: 10px; border-radius: 5px; text-align: center; }
         .sucesso-box { text-align: center; padding: 50px; }
-    </style>
 
+        .aviso-container { text-align: center; padding: 20px; }
+        
+        .contato-destaque {
+            font-size: 1.5rem; 
+            color: limegreen; 
+            font-weight: bold; 
+            margin: 20px 0;
+            border: 2px dashed limegreen; 
+            padding: 15px; 
+            border-radius: 10px; 
+            display: inline-block;
+            transition: 0.3s;
+        }
+        .contato-destaque:hover {
+            background-color: rgba(50, 205, 50, 0.1);
+            cursor: pointer;
+        }
+    </style>
+    
     <script>
         function toggleTipoCliente(tipo) {
             document.getElementById('area_pf').classList.add('hidden');
             document.getElementById('area_pj').classList.add('hidden');
-            
             if(tipo === 'PF'){
                 document.getElementById('area_pf').classList.remove('hidden');
                 document.getElementById('cpf').required = true;
@@ -150,33 +162,13 @@ if (isset($_POST['submit'])) {
                 document.getElementById('cnpj').required = true;
             }
         }
-
         function mascara(i, t) {
             var v = i.value;
             v = v.replace(/\D/g, "");
-
-            if (t == 'cpf') {
-                v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-                i.setAttribute("maxlength", "14");
-            }
-            else if (t == 'cnpj') {
-                v = v.replace(/^(\d{2})(\d)/, "$1.$2");
-                v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-                v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
-                v = v.replace(/(\d{4})(\d)/, "$1-$2");
-                i.setAttribute("maxlength", "18");
-            }
-            else if (t == 'tel') {
-                i.setAttribute("maxlength", "15");
-                v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-                v = v.replace(/(\d)(\d{4})$/, "$1-$2");
-            }
-            else if (t == 'cep') {
-                v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-                i.setAttribute("maxlength", "9");
-            }
+            if (t == 'cpf') { v = v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2"); i.setAttribute("maxlength", "14"); }
+            else if (t == 'cnpj') { v = v.replace(/^(\d{2})(\d)/, "$1.$2").replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3").replace(/\.(\d{3})(\d)/, ".$1/$2").replace(/(\d{4})(\d)/, "$1-$2"); i.setAttribute("maxlength", "18"); }
+            else if (t == 'tel') { i.setAttribute("maxlength", "15"); v = v.replace(/^(\d{2})(\d)/g, "($1) $2").replace(/(\d)(\d{4})$/, "$1-$2"); }
+            else if (t == 'cep') { v = v.replace(/^(\d{5})(\d)/, "$1-$2"); i.setAttribute("maxlength", "9"); }
             i.value = v;
         }
     </script>
@@ -184,144 +176,22 @@ if (isset($_POST['submit'])) {
 <body>
 
 <div class="container-box">
-    <?php if($sucesso): ?>
-        <div class="sucesso-box">
-            <h2 style="color: limegreen;">Cadastro Realizado!</h2>
-            <p>Sua senha foi enviada para: <b><?php echo $email; ?></b></p>
-            <br>
-            <a href="login.php" class="btn-custom" style="display:inline-block; width:200px; text-decoration:none;">Ir para Login</a>
+    
+    <div class="aviso-container">
+        <h2 class="mb-4">Registro no Sistema</h2>
+        <p class="lead">Para se registrar no nosso sistema, por favor, entre em contato conosco:</p>
+        
+        <div class="contato-destaque">
+            <a href="https://wa.me/5584999999999?text=Olá,%20gostaria%20de%20me%20registrar%20no%20sistema." 
+               target="_blank" 
+               style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+                <i class="bi bi-whatsapp"></i> (84) 99999-9999
+            </a>
         </div>
-    <?php else: ?>
-
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2>Cadastro de Cliente</h2>
-            <a href="inicio.php" style="color:white; text-decoration:none; border:1px solid white; padding:5px 10px; border-radius:5px;">Voltar</a>
-        </div>
-        <hr>
-
-        <?php if($erroEmail): ?>
-            <div class="msg-erro">⚠ E-mail já cadastrado.</div><br>
-        <?php endif; ?>
-
-        <form action="cadastro.php" method="POST">
-            <fieldset>
-                <legend>Tipo de Cliente</legend>
-                <div style="display:flex; gap:20px; justify-content:center;">
-                    <label style="cursor:pointer;"><input type="radio" name="tipo_cliente" value="PF" checked onclick="toggleTipoCliente('PF')"> Pessoa Física</label>
-                    <label style="cursor:pointer;"><input type="radio" name="tipo_cliente" value="PJ" onclick="toggleTipoCliente('PJ')"> Pessoa Jurídica</label>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <legend>Dados Gerais</legend>
-                <div class="row">
-                    <div class="col-half">
-                        <label>Nome / Razão Social *</label>
-                        <input type="text" name="nome" class="form-control" required value="<?php echo $nome; ?>">
-                    </div>
-                    <div class="col-half">
-                        <label>Nome Fantasia</label>
-                        <input type="text" name="nome_fantasia" class="form-control" value="<?php echo $nome_fantasia; ?>">
-                    </div>
-                    <div class="col-half">
-                        <label>Data Nascimento / Fundação</label>
-                        <input type="date" name="data_referencia" class="form-control" value="<?php echo $data_referencia; ?>">
-                    </div>
-                </div>
-
-                <div id="area_pf">
-                    <div class="row">
-                        <div class="col-half"><label>CPF *</label><input type="text" name="cpf" id="cpf" class="form-control" oninput="mascara(this, 'cpf')"></div>
-                        <div class="col-half"><label>RG</label><input type="text" name="rg" class="form-control"></div>
-                    </div>
-                </div>
-
-                <div id="area_pj" class="hidden">
-                    <div class="row">
-                        <div class="col-half"><label>CNPJ *</label><input type="text" name="cnpj" id="cnpj" class="form-control" oninput="mascara(this, 'cnpj')"></div>
-                        <div class="col-half"><label>Inscrição Estadual</label><input type="text" name="inscricao_estadual" class="form-control"></div>
-                    </div>
-                    <h4 style="margin-top:15px; color:limegreen; font-size:1rem;">Representante Legal</h4>
-                    <div class="row">
-                        <div class="col-half"><label>Nome</label><input type="text" name="representante_nome" class="form-control"></div>
-                        <div class="col-half"><label>CPF</label><input type="text" name="representante_cpf" class="form-control" oninput="mascara(this, 'cpf')"></div>
-                        <div class="col-half"><label>Cargo</label><input type="text" name="representante_cargo" class="form-control"></div>
-                    </div>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <legend>Endereço</legend>
-                <div class="row">
-                    <div class="col-half" style="flex: 0 0 30%;"><label>CEP</label><input type="text" name="cep" class="form-control" oninput="mascara(this, 'cep')"></div>
-                    <div class="col-half" style="flex: 1;"><label>Logradouro</label><input type="text" name="logradouro" class="form-control"></div>
-                </div>
-                <div class="row">
-                    <div class="col-half" style="flex: 0 0 20%;"><label>Número</label><input type="text" name="numero" class="form-control"></div>
-                    <div class="col-half"><label>Complemento</label><input type="text" name="complemento" class="form-control"></div>
-                    <div class="col-half"><label>Bairro</label><input type="text" name="bairro" class="form-control"></div>
-                </div>
-                <div class="row">
-                    <div class="col-half"><label>Cidade</label><input type="text" name="cidade" class="form-control"></div>
-                    <div class="col-half" style="flex: 0 0 20%;"><label>UF</label><input type="text" name="estado" class="form-control" maxlength="2" style="text-transform:uppercase;"></div>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <legend>Contato</legend>
-                <div class="row">
-                    <div class="col-half">
-                        <label>Telefone Fixo</label>
-                        <input type="text" name="telefone" class="form-control" oninput="mascara(this, 'tel')">
-                    </div>
-                    <div class="col-half">
-                        <label>Celular / WhatsApp *</label>
-                        <input type="text" name="celular" class="form-control" required oninput="mascara(this, 'tel')">
-                    </div>
-                    <div class="col-full">
-                        <label>E-mail (Login) *</label>
-                        <input type="email" name="email" class="form-control" required>
-                    </div>
-                </div>
-            </fieldset>
-
-            <fieldset>
-                <legend>Info. Comerciais</legend>
-                <div class="row">
-                    <div class="col-half">
-                        <label>Perfil</label>
-                        <select name="perfil_cliente" class="form-select">
-                            <option value="">Selecione...</option>
-                            <option>Residencial</option>
-                            <option>Comercial</option>
-                            <option>Industrial</option>
-                        </select>
-                    </div>
-                    <div class="col-half">
-                        <label>Origem</label>
-                        <select name="origem_contato" class="form-select">
-                            <option value="">Selecione...</option>
-                            <option>Indicação</option>
-                            <option>Internet</option>
-                            <option>Telefone</option>
-                            <option>Outros</option>
-                        </select>
-                    </div>
-                    <div class="col-full"><label>Observações</label><textarea name="observacoes" class="form-control" rows="3"></textarea></div>
-                </div>
-            </fieldset>
-
-            <div style="margin-bottom: 20px;">
-                <label style="display:flex; align-items:center; cursor:pointer;">
-                    <input type="checkbox" name="lgpd" value="1" required style="width:20px; height:20px; margin-right:10px;">
-                    Declaro que li e aceito o tratamento dos meus dados conforme a LGPD.
-                </label>
-            </div>
-
-            <button type="submit" name="submit" class="btn-custom">Salvar Cadastro</button>
-        </form>
-    <?php endif; ?>
-</div>
+        
+        <br><br>
+        <a href="inicio.php" style="color:white; text-decoration:none; border:1px solid white; padding:10px 20px; border-radius:5px;">Voltar ao Início</a>
+    </div>
 
 </body>
 </html>
