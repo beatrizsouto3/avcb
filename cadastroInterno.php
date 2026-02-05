@@ -2,7 +2,11 @@
     session_start();
     include_once('config.php');
 
-    if((!isset($_SESSION['email']) == true) or (!isset($_SESSION['senha']) == true) or ($_SESSION['permissao'] != 1)){
+    if((!isset($_SESSION['email']) == true) or (!isset($_SESSION['senha']) == true)){
+        header('Location: sistema.php');
+        exit;
+    }
+    if($_SESSION['permissao'] != 1 && $_SESSION['permissao'] != 3){
         header('Location: sistema.php');
         exit;
     }
@@ -31,11 +35,15 @@
         $cep = $_POST['cep']; $logradouro = $_POST['logradouro']; $numero = $_POST['numero'];
         $complemento = $_POST['complemento']; $bairro = $_POST['bairro'];
         $cidade = $_POST['cidade']; $estado = $_POST['estado'];
-
         $telefone = $_POST['telefone']; $celular = $_POST['celular']; $email = $_POST['email'];
         $perfil_cliente = $_POST['perfil_cliente']; $origem_contato = $_POST['origem_contato'];
         $observacoes = $_POST['observacoes'];
-        $permissao_id = $_POST['permissao_id'];
+        
+        if($_SESSION['permissao'] == 1){
+            $permissao_id = $_POST['permissao_id'];
+        } else {
+            $permissao_id = 2;
+        }
 
         $sqlVerifica = "SELECT id FROM usuarios WHERE email = :email";
         $stmtVerifica = $pdo->prepare($sqlVerifica);
@@ -79,6 +87,7 @@
                 
                 include_once('enviarEmail.php');
                 enviarEmailBoasVindas($nome, $email, $senhaLimpa);
+                
                 header('Location: sistema.php?page=usuarios&msg=cadastrado');
                 exit;
 
@@ -95,7 +104,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <title>Cadastro Admin</title>
+    <title>Cadastro Interno</title>
     <style>
         body{
             font-family: Arial, Helvetica, sans-serif;
@@ -137,7 +146,6 @@
         function toggleTipoCliente(tipo) {
             document.getElementById('area_pf').classList.add('hidden');
             document.getElementById('area_pj').classList.add('hidden');
-            
             if(tipo === 'PF'){
                 document.getElementById('area_pf').classList.remove('hidden');
                 document.getElementById('cpf').required = true;
@@ -151,29 +159,10 @@
         function mascara(i, t) {
             var v = i.value;
             v = v.replace(/\D/g, "");
-
-            if (t == 'cpf') {
-                v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-                i.setAttribute("maxlength", "14");
-            }
-            else if (t == 'cnpj') {
-                v = v.replace(/^(\d{2})(\d)/, "$1.$2");
-                v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-                v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
-                v = v.replace(/(\d{4})(\d)/, "$1-$2");
-                i.setAttribute("maxlength", "18");
-            }
-            else if (t == 'tel') {
-                i.setAttribute("maxlength", "15");
-                v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
-                v = v.replace(/(\d)(\d{4})$/, "$1-$2");
-            }
-            else if (t == 'cep') {
-                v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-                i.setAttribute("maxlength", "9");
-            }
+            if (t == 'cpf') { v = v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2"); i.setAttribute("maxlength", "14"); }
+            else if (t == 'cnpj') { v = v.replace(/^(\d{2})(\d)/, "$1.$2").replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3").replace(/\.(\d{3})(\d)/, ".$1/$2").replace(/(\d{4})(\d)/, "$1-$2"); i.setAttribute("maxlength", "18"); }
+            else if (t == 'tel') { i.setAttribute("maxlength", "15"); v = v.replace(/^(\d{2})(\d)/g, "($1) $2").replace(/(\d)(\d{4})$/, "$1-$2"); }
+            else if (t == 'cep') { v = v.replace(/^(\d{5})(\d)/, "$1-$2"); i.setAttribute("maxlength", "9"); }
             i.value = v;
         }
     </script>
@@ -182,7 +171,7 @@
 
 <div class="container-box">
     <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h2>Novo Usuário (Admin)</h2>
+        <h2>Novo Usuário</h2>
         <a href="sistema.php?page=usuarios" style="color:white; text-decoration:none; border:1px solid white; padding:5px 10px; border-radius:5px;">Voltar</a>
     </div>
     <hr>
@@ -191,7 +180,7 @@
         <div class="msg-erro">⚠ E-mail já cadastrado!</div><br>
     <?php endif; ?>
 
-    <form action="cadastroAdmin.php" method="POST">
+    <form action="cadastroInterno.php" method="POST">
         <fieldset>
             <legend>Tipo de Cliente</legend>
             <div style="display:flex; gap:20px; justify-content:center;">
@@ -252,11 +241,16 @@
             <div class="row">
                 <div class="col-full">
                     <label>Nível de Acesso</label>
-                    <select name="permissao_id" class="form-select">
-                        <option value="2">Cliente</option>
-                        <option value="3">Gestor</option>
-                        <option value="1">Administrador</option>
-                    </select>
+                    <?php if($_SESSION['permissao'] == 1): ?>
+                        <select name="permissao_id" class="form-select">
+                            <option value="2">Cliente</option>
+                            <option value="3">Gestor</option>
+                            <option value="1">Administrador</option>
+                        </select>
+                    <?php else: ?>
+                        <input type="text" class="form-control" value="Cliente" disabled style="background: #ccc; color: #333;">
+                        <input type="hidden" name="permissao_id" value="2">
+                    <?php endif; ?>
                 </div>
             </div>
         </fieldset>

@@ -2,7 +2,7 @@
     session_start();
     include_once('config.php');
 
-    if((!isset($_SESSION['email']) == true) or (!isset($_SESSION['senha']) == true) or ($_SESSION['permissao'] != 1)){
+    if((!isset($_SESSION['email']) == true) or (!isset($_SESSION['senha']) == true) or ($_SESSION['permissao'] != 1 && $_SESSION['permissao'] != 3)){
         header('Location: sistema.php');
         exit;
     }
@@ -17,6 +17,11 @@
         if($stmt->rowCount() > 0)
         {
             $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if($_SESSION['permissao'] == 3 && $user_data['permissao_id'] != 2){
+                header('Location: sistema.php?msg=sem_permissao');
+                exit;
+            }
             
             $nome = $user_data['nome'];
             $email = $user_data['email'];
@@ -119,28 +124,10 @@
             var v = i.value;
             v = v.replace(/\D/g, "");
 
-            if (t == 'cpf') {
-                v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                v = v.replace(/(\d{3})(\d)/, "$1.$2");
-                v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-                i.setAttribute("maxlength", "14");
-            }
-            else if (t == 'cnpj') {
-                v = v.replace(/^(\d{2})(\d)/, "$1.$2");
-                v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-                v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
-                v = v.replace(/(\d{4})(\d)/, "$1-$2");
-                i.setAttribute("maxlength", "18");
-            }
-            else if (t == 'tel') {
-                i.setAttribute("maxlength", "15");
-                v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); 
-                v = v.replace(/(\d)(\d{4})$/, "$1-$2");    
-            }
-            else if (t == 'cep') {
-                v = v.replace(/^(\d{5})(\d)/, "$1-$2");
-                i.setAttribute("maxlength", "9");
-            }
+            if (t == 'cpf') { v = v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2"); i.setAttribute("maxlength", "14"); }
+            else if (t == 'cnpj') { v = v.replace(/^(\d{2})(\d)/, "$1.$2").replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3").replace(/\.(\d{3})(\d)/, ".$1/$2").replace(/(\d{4})(\d)/, "$1-$2"); i.setAttribute("maxlength", "18"); }
+            else if (t == 'tel') { i.setAttribute("maxlength", "15"); v = v.replace(/^(\d{2})(\d)/g, "($1) $2").replace(/(\d)(\d{4})$/, "$1-$2"); }
+            else if (t == 'cep') { v = v.replace(/^(\d{5})(\d)/, "$1-$2"); i.setAttribute("maxlength", "9"); }
             i.value = v;
         }
         
@@ -175,27 +162,16 @@
         <fieldset>
             <legend>Dados Gerais</legend>
             <div class="row">
-                <div class="col-half">
-                    <label>Nome / Razão Social *</label>
-                    <input type="text" name="nome" class="form-control" value="<?php echo $nome;?>" required>
-                </div>
-                <div class="col-half">
-                    <label>Nome Fantasia</label>
-                    <input type="text" name="nome_fantasia" class="form-control" value="<?php echo $nome_fantasia;?>">
-                </div>
-                <div class="col-half">
-                    <label>Data Nascimento / Fundação</label>
-                    <input type="date" name="data_referencia" class="form-control" value="<?php echo $data_referencia;?>">
-                </div>
+                <div class="col-half"><label>Nome / Razão Social *</label><input type="text" name="nome" class="form-control" value="<?php echo $nome;?>" required></div>
+                <div class="col-half"><label>Nome Fantasia</label><input type="text" name="nome_fantasia" class="form-control" value="<?php echo $nome_fantasia;?>"></div>
+                <div class="col-half"><label>Data Nascimento / Fundação</label><input type="date" name="data_referencia" class="form-control" value="<?php echo $data_referencia;?>"></div>
             </div>
-
             <div id="area_pf">
                 <div class="row">
                     <div class="col-half"><label>CPF *</label><input type="text" name="cpf" id="cpf" class="form-control" oninput="mascara(this, 'cpf')" value="<?php echo ($tipo_cliente == 'PF') ? $cpf_cnpj : ''; ?>"></div>
                     <div class="col-half"><label>RG</label><input type="text" name="rg" class="form-control" value="<?php echo $rg;?>"></div>
                 </div>
             </div>
-
             <div id="area_pj" class="hidden">
                 <div class="row">
                     <div class="col-half"><label>CNPJ *</label><input type="text" name="cnpj" id="cnpj" class="form-control" oninput="mascara(this, 'cnpj')" value="<?php echo ($tipo_cliente == 'PJ') ? $cpf_cnpj : ''; ?>"></div>
@@ -233,23 +209,23 @@
                 <div class="col-half"><label>E-mail *</label><input type="email" name="email" class="form-control" value="<?php echo $email;?>" required></div>
                 <div class="col-half"><label>Senha (Deixe vazio para não mudar)</label><input type="password" name="senha" class="form-control" placeholder="Nova Senha?"></div>
                 
-                <div class="col-half">
-                    <label>Celular / Zap *</label>
-                    <input type="text" name="celular" class="form-control" oninput="mascara(this, 'tel')" value="<?php echo $celular;?>" required>
-                </div>
-                <div class="col-half">
-                    <label>Telefone Fixo</label>
-                    <input type="text" name="telefone" class="form-control" oninput="mascara(this, 'tel')" value="<?php echo $telefone;?>">
-                </div>
+                <div class="col-half"><label>Celular / Zap *</label><input type="text" name="celular" class="form-control" oninput="mascara(this, 'tel')" value="<?php echo $celular;?>" required></div>
+                <div class="col-half"><label>Telefone Fixo</label><input type="text" name="telefone" class="form-control" oninput="mascara(this, 'tel')" value="<?php echo $telefone;?>"></div>
             </div>
+            
             <div class="row">
                 <div class="col-full">
                     <label>Nível de Acesso</label>
-                    <select name="permissao_id" class="form-select">
-                        <option value="2" <?php echo ($permissao_id == 2) ? 'selected' : ''; ?>>Cliente</option>
-                        <option value="3" <?php echo ($permissao_id == 3) ? 'selected' : ''; ?>>Gestor</option>
-                        <option value="1" <?php echo ($permissao_id == 1) ? 'selected' : ''; ?>>Administrador</option>
-                    </select>
+                    <?php if($_SESSION['permissao'] == 1): ?>
+                        <select name="permissao_id" class="form-select">
+                            <option value="2" <?php echo ($permissao_id == 2) ? 'selected' : ''; ?>>Cliente</option>
+                            <option value="3" <?php echo ($permissao_id == 3) ? 'selected' : ''; ?>>Gestor</option>
+                            <option value="1" <?php echo ($permissao_id == 1) ? 'selected' : ''; ?>>Administrador</option>
+                        </select>
+                    <?php else: ?>
+                        <input type="text" class="form-control" value="Cliente" disabled style="background: #ccc; color: #333;">
+                        <input type="hidden" name="permissao_id" value="2">
+                    <?php endif; ?>
                 </div>
             </div>
         </fieldset>
@@ -257,29 +233,9 @@
         <fieldset>
             <legend>Info. Comerciais</legend>
             <div class="row">
-                <div class="col-half">
-                    <label>Perfil</label>
-                    <select name="perfil_cliente" class="form-select">
-                        <option value="">Selecione...</option>
-                        <option <?php echo ($perfil_cliente == 'Residencial') ? 'selected' : ''; ?>>Residencial</option>
-                        <option <?php echo ($perfil_cliente == 'Comercial') ? 'selected' : ''; ?>>Comercial</option>
-                        <option <?php echo ($perfil_cliente == 'Industrial') ? 'selected' : ''; ?>>Industrial</option>
-                    </select>
-                </div>
-                <div class="col-half">
-                    <label>Origem</label>
-                    <select name="origem_contato" class="form-select">
-                        <option value="">Selecione...</option>
-                        <option <?php echo ($origem_contato == 'Indicação') ? 'selected' : ''; ?>>Indicação</option>
-                        <option <?php echo ($origem_contato == 'Internet') ? 'selected' : ''; ?>>Internet</option>
-                        <option <?php echo ($origem_contato == 'Telefone') ? 'selected' : ''; ?>>Telefone</option>
-                        <option <?php echo ($origem_contato == 'Outros') ? 'selected' : ''; ?>>Outros</option>
-                    </select>
-                </div>
-                <div class="col-full">
-                    <label>Observações</label>
-                    <textarea name="observacoes" class="form-control"><?php echo $observacoes;?></textarea>
-                </div>
+                <div class="col-half"><label>Perfil</label><select name="perfil_cliente" class="form-select"><option <?php echo ($perfil_cliente == 'Residencial') ? 'selected' : ''; ?>>Residencial</option><option <?php echo ($perfil_cliente == 'Comercial') ? 'selected' : ''; ?>>Comercial</option><option <?php echo ($perfil_cliente == 'Industrial') ? 'selected' : ''; ?>>Industrial</option></select></div>
+                <div class="col-half"><label>Origem</label><select name="origem_contato" class="form-select"><option <?php echo ($origem_contato == 'Indicação') ? 'selected' : ''; ?>>Indicação</option><option <?php echo ($origem_contato == 'Internet') ? 'selected' : ''; ?>>Internet</option><option <?php echo ($origem_contato == 'Telefone') ? 'selected' : ''; ?>>Telefone</option><option <?php echo ($origem_contato == 'Outros') ? 'selected' : ''; ?>>Outros</option></select></div>
+                <div class="col-full"><label>Observações</label><textarea name="observacoes" class="form-control"><?php echo $observacoes;?></textarea></div>
             </div>
         </fieldset>
 

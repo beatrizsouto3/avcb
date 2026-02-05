@@ -2,7 +2,7 @@
     session_start();
     include_once('config.php');
 
-    if((!isset($_SESSION['email']) == true) or ($_SESSION['permissao'] != 1)){
+    if((!isset($_SESSION['email']) == true) or ($_SESSION['permissao'] != 1 && $_SESSION['permissao'] != 3)){
         header('Location: sistema.php');
         exit;
     }
@@ -11,6 +11,18 @@
     {
         $id = $_POST['id'];
         
+        if($_SESSION['permissao'] == 3){
+            $sqlCheck = "SELECT permissao_id FROM usuarios WHERE id = :id";
+            $stmtCheck = $pdo->prepare($sqlCheck);
+            $stmtCheck->execute([':id' => $id]);
+            $alvo = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+            
+            if($alvo['permissao_id'] != 2){
+                header('Location: sistema.php?msg=sem_permissao');
+                exit;
+            }
+        }
+
         $nome = $_POST['nome'];
         $nome_fantasia = $_POST['nome_fantasia'];
         $email = $_POST['email'];
@@ -33,20 +45,19 @@
         $representante_cpf = $_POST['representante_cpf'];
         $representante_cargo = $_POST['representante_cargo'];
 
-        $cep = $_POST['cep']; 
-        $logradouro = $_POST['logradouro']; 
-        $numero = $_POST['numero'];
-        $complemento = $_POST['complemento']; 
-        $bairro = $_POST['bairro'];
-        $cidade = $_POST['cidade']; 
-        $estado = $_POST['estado'];
+        $cep = $_POST['cep']; $logradouro = $_POST['logradouro']; $numero = $_POST['numero'];
+        $complemento = $_POST['complemento']; $bairro = $_POST['bairro'];
+        $cidade = $_POST['cidade']; $estado = $_POST['estado'];
 
-        $telefone = $_POST['telefone'];
-        $celular = $_POST['celular'];
-        $perfil_cliente = $_POST['perfil_cliente'];
-        $origem_contato = $_POST['origem_contato'];
+        $telefone = $_POST['telefone']; $celular = $_POST['celular'];
+        $perfil_cliente = $_POST['perfil_cliente']; $origem_contato = $_POST['origem_contato'];
         $observacoes = $_POST['observacoes'];
-        $permissao_id = $_POST['permissao_id'];
+        
+        if($_SESSION['permissao'] == 1){
+            $permissao_id = $_POST['permissao_id'];
+        } else {
+            $permissao_id = 2;
+        }
 
         $sql = "UPDATE usuarios SET 
                     nome = :nome, 
