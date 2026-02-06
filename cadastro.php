@@ -182,10 +182,10 @@ if (isset($_POST['submit'])) {
         <p class="lead">Para se registrar no nosso sistema, por favor, entre em contato conosco:</p>
         
         <div class="contato-destaque">
-            <a href="https://wa.me/5584999999999?text=Olá,%20gostaria%20de%20me%20registrar%20no%20sistema." 
+            <a href="https://wa.me/5584994243320?text=Olá,%20gostaria%20de%20me%20registrar%20no%20sistema." 
                target="_blank" 
                style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                <i class="bi bi-whatsapp"></i> (84) 99999-9999
+                <i class="bi bi-whatsapp"></i> (84) 99424-3320
             </a>
         </div>
         

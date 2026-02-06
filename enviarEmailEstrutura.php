@@ -1,80 +1,110 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
 
-require 'PHPMailer/Exception.php';
-require 'PHPMailer/PHPMailer.php';
-require 'PHPMailer/SMTP.php';
+require __DIR__ . '/PHPMailer/src/Exception.php';
+require __DIR__ . '/PHPMailer/src/PHPMailer.php';
+require __DIR__ . '/PHPMailer/src/SMTP.php';
 
-function enviarEmailBoasVindas($nomeUsuario, $emailUsuario, $senhaTemporaria) {
+function getMailer() {
     $mail = new PHPMailer(true);
-    
-    $protocolo = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
-    
-    $host = $_SERVER['HTTP_HOST'];
-    
-    $link_sistema = $protocolo . "://" . $host . "/avcb/login.php";
-
-    //dados smtp
-    $host_smtp = '---'; 
-    $email_remetente = '---';
-    $senha_email     = '---';
-    $porta_smtp      = 465;
-
     try {
+        $mail->SMTPDebug = 0;
+        $mail->Debugoutput = 'html'; 
+
         $mail->isSMTP();
-        $mail->Host       = $host_smtp;
+        
+        $mail->Host       = '---'; 
         $mail->SMTPAuth   = true;
-        $mail->Username   = $email_remetente;
-        $mail->Password   = $senha_email;
         
-        if($porta_smtp == 465){
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        } else {
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        }
+        $mail->Username   = '---'; 
+        $mail->Password   = '---';
         
-        $mail->Port       = $porta_smtp;
-        $mail->CharSet    = 'UTF-8';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port       = 465; 
 
-        $mail->setFrom($email_remetente, 'Sistema AVCB');
-        $mail->addAddress($emailUsuario, $nomeUsuario);
-
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
+        
+        $mail->setFrom('---', 'Sistema AVCB');
         $mail->isHTML(true);
-        $mail->Subject = 'Senha de Acesso - Sistema AVCB';
-        
-        $mail->Body    = "
-            <div style='font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 10px;'>
-                <h2 style='color: #28a745; text-align: center;'>Bem-vindo(a), $nomeUsuario!</h2>
-                
-                <p style='font-size: 16px;'>Seu cadastro foi realizado com sucesso.</p>
-                <p>Para acessar o sistema, utilize a senha temporária abaixo:</p>
-                
-                <div style='background: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 2px; border: 2px dashed #28a745; margin: 20px 0; color: #333;'>
-                    $senhaTemporaria
-                </div>
+        $mail->CharSet = 'UTF-8';
 
-                <div style='text-align: center; margin: 30px 0;'>
-                    <a href='$link_sistema' style='background-color: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; display: inline-block;'>
-                        Acessar Sistema Agora
-                    </a>
-                </div>
-                
-                <p style='font-size: 12px; color: #888; text-align: center;'>
-                    Link de acesso: <a href='$link_sistema' style='color: #28a745;'>$link_sistema</a>
-                </p>
-
-                <hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>
-                <p style='font-size: 12px; color: #999; text-align: center;'>Não compartilhe esta senha com ninguém.<br>Este é um e-mail automático.</p>
-            </div>
-        ";
-        
-        $mail->AltBody = "Olá $nomeUsuario. Sua senha temporária é: $senhaTemporaria. Acesse em: $link_sistema";
-
-        $mail->send();
-        return true;
+        return $mail;
     } catch (Exception $e) {
-        return false;
+        return null;
     }
+}
+
+function enviarEmailBoasVindas($nome, $emailDestino, $senhaLimpa) {
+    $mail = getMailer();
+    if($mail) {
+        try {
+            $mail->addAddress($emailDestino, $nome);
+            $mail->Subject = 'Bem-vindo(a) ao Sistema AVCB';
+            
+            $linkSistema = "http://localhost/avcb/login.php"; 
+
+            $mail->Body = "
+            <div style='background-color: #f4f4f4; padding: 40px 0; font-family: Arial, sans-serif;'>
+                <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; padding: 40px; border: 1px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.05);'>
+                    <h2 style='color: #2E8B57; text-align: center; margin-top: 0;'>Bem-vindo(a), $nome!</h2>
+                    <p style='color: #555; font-size: 16px; text-align: center;'>Seu cadastro foi realizado com sucesso.</p>
+                    <div style='border: 2px dashed #2E8B57; background-color: #fafffa; padding: 20px; text-align: center; margin: 30px 0; border-radius: 8px;'>
+                        <span style='font-size: 24px; font-weight: bold; color: #333;'>$senhaLimpa</span>
+                    </div>
+                    <div style='text-align: center; margin-bottom: 30px;'>
+                        <a href='$linkSistema' style='background-color: #2E8B57; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Acessar Sistema Agora</a>
+                    </div>
+                </div>
+            </div>
+            ";
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+    return false;
+}
+
+function enviarEmailRecuperacao($nome, $emailDestino, $senhaTemp) {
+    $mail = getMailer();
+    if($mail) {
+        try {
+            $mail->addAddress($emailDestino, $nome);
+            $mail->Subject = 'Recuperação de Senha - Sistema AVCB';
+            
+            $linkSistema = "http://localhost/avcb/login.php";
+
+            $mail->Body = "
+            <div style='background-color: #f4f4f4; padding: 40px 0; font-family: Arial, sans-serif;'>
+                <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; padding: 40px; border: 1px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.05);'>
+                    <h2 style='color: #d35400; text-align: center; margin-top: 0;'>Recuperação de Senha</h2>
+                    <p style='color: #555; font-size: 16px; text-align: center;'>Sua nova senha temporária:</p>
+                    <div style='border: 2px dashed #d35400; background-color: #fff5f0; padding: 20px; text-align: center; margin: 30px 0; border-radius: 8px;'>
+                        <span style='font-size: 24px; font-weight: bold; color: #333;'>$senhaTemp</span>
+                    </div>
+                    <div style='text-align: center; margin-bottom: 30px;'>
+                        <a href='$linkSistema' style='background-color: #d35400; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Fazer Login</a>
+                    </div>
+                </div>
+            </div>
+            ";
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+    return false;
 }
 ?>

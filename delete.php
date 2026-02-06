@@ -18,17 +18,34 @@
         if($stmt->rowCount() > 0)
         {
             $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
-
             if($_SESSION['permissao'] == 3 && $user_data['permissao_id'] != 2){
                 header('Location: sistema.php?page=usuarios&msg=sem_permissao');
                 exit;
             }
 
-            $sqlDelete = "DELETE FROM usuarios WHERE id=$id";
-            $stmtDelete = $pdo->prepare($sqlDelete);
-            $stmtDelete->execute();
-            
-            header('Location: sistema.php?page=usuarios&msg=deletado');
+            try {
+                $pdo->beginTransaction();
+
+                $sqlDelProcessos = "DELETE FROM processos WHERE cliente_id = :id";
+                $stmtDelProc = $pdo->prepare($sqlDelProcessos);
+                $stmtDelProc->execute([':id' => $id]);
+
+                $sqlDelDocs = "DELETE FROM documentos WHERE usuario_id = :id";
+                $stmtDelDocs = $pdo->prepare($sqlDelDocs);
+                $stmtDelDocs->execute([':id' => $id]);
+
+                $sqlDelete = "DELETE FROM usuarios WHERE id = :id";
+                $stmtDelete = $pdo->prepare($sqlDelete);
+                $stmtDelete->execute([':id' => $id]);
+
+                $pdo->commit();
+                
+                header('Location: sistema.php?page=usuarios&msg=deletado');
+
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                echo "Erro ao excluir: " . $e->getMessage();
+            }
         }
         else {
             header('Location: sistema.php?page=usuarios');

@@ -10,22 +10,27 @@
     $logado = $_SESSION['email'];
     $perm = $_SESSION['permissao'];
 
+    if(isset($_SESSION['id_usuario'])){
+        $id_verificacao = $_SESSION['id_usuario'];
+        $sqlCheck = "SELECT primeiro_acesso FROM usuarios WHERE id = $id_verificacao";
+        $stmtCheck = $pdo->query($sqlCheck);
+        if($stmtCheck && $stmtCheck->rowCount() > 0){
+            $statusCheck = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+            if($statusCheck['primeiro_acesso'] == 'true'){
+                header('Location: definirSenha.php');
+                exit;
+            }
+        }
+    }
+
     $pagina_atual = isset($_GET['page']) ? $_GET['page'] : 'home';
 
-    if($pagina_atual == 'usuarios' && $perm != 1 && $perm != 3){
-        header('Location: sistema.php');
-        exit;
-    }
-
-    if($pagina_atual == 'processos' && $perm != 3){
-        header('Location: sistema.php');
-        exit;
-    }
+    if($pagina_atual == 'usuarios' && $perm != 1 && $perm != 3){ header('Location: sistema.php'); exit; }
+    if($pagina_atual == 'processos' && $perm != 3){ header('Location: sistema.php'); exit; }
 
     if($pagina_atual == 'usuarios'){
         $where = "";
         if($perm == 3){ $where = " AND permissao_id = 2"; }
-
         if(!empty($_GET['busca'])) {
             $data = $_GET['busca'];
             $sql = "SELECT * FROM usuarios WHERE (nome ILIKE '%$data%' OR email ILIKE '%$data%') $where ORDER BY id DESC";
@@ -37,10 +42,7 @@
     }
 
     if($pagina_atual == 'processos'){
-        $sqlBase = "SELECT p.*, u.nome AS nome_cliente 
-                    FROM processos p 
-                    LEFT JOIN usuarios u ON p.cliente_id = u.id";
-
+        $sqlBase = "SELECT p.*, u.nome AS nome_cliente FROM processos p LEFT JOIN usuarios u ON p.cliente_id = u.id";
         if(!empty($_GET['busca'])) {
             $data = $_GET['busca'];
             $sql = "$sqlBase WHERE p.numero_processo ILIKE '%$data%' OR u.nome ILIKE '%$data%' ORDER BY p.id DESC";
@@ -59,6 +61,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+    
     <title>SISTEMA | AVCB</title>
     <style>
         body { background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35)); color: white; min-height: 100vh; overflow-x: hidden; }
@@ -120,18 +124,15 @@
                 <?php if($perm == 1 || $perm == 3): ?>
                 <a class="nav-link" href="sistema.php?page=usuarios"><i class="bi bi-people"></i> Usuários</a>
                 <?php endif; ?>
-                
                 <?php if($perm == 3): ?>
                 <a class="nav-link" href="sistema.php?page=processos"><i class="bi bi-gear-fill"></i> Processos</a>
                 <?php endif; ?>
-                
                 <a class="nav-link text-danger mt-3" href="sair.php"><i class="bi bi-box-arrow-right"></i> Sair</a>
             </div>
         </div>
     </div>
 
     <div class="main-content p-4 text-center">
-        <?php if(isset($_GET['msg'])){ } ?>
 
         <?php if($pagina_atual == 'home'){ ?>
             <div class="mt-5"><i class="bi bi-shield-check" style="font-size: 5rem;"></i><h1 class="display-4 fw-bold">Bem vindo ao Sistema</h1></div>
@@ -156,7 +157,10 @@
                             $souAdmin = ($perm == 1); $souGestor = ($perm == 3); $alvoEhCliente = ($user_data['permissao_id'] == 2);
                             echo "<tr><td>{$user_data['id']}</td><td>{$user_data['nome']}</td><td>{$user_data['email']}</td><td>{$user_data['telefone']}</td><td>$tipo</td><td>";
                             echo "<a class='btn btn-sm btn-primary' href='edit.php?id={$user_data['id']}'><i class='bi bi-pencil'></i></a> ";
-                            if($souAdmin || ($souGestor && $alvoEhCliente)){ echo "<a class='btn btn-sm btn-danger' href='delete.php?id={$user_data['id']}' onclick=\"return confirm('Excluir?')\"><i class='bi bi-trash-fill'></i></a>"; }
+                            
+                            if($souAdmin || ($souGestor && $alvoEhCliente)){ 
+                                echo "<a class='btn btn-sm btn-danger' href='#' onclick=\"confirmarExclusao(event, 'delete.php?id={$user_data['id']}')\"><i class='bi bi-trash-fill'></i></a>"; 
+                            }
                             echo "</td></tr>";
                         } ?>
                     </tbody>
@@ -179,14 +183,16 @@
                         <?php while($proc = $stmtProcessos->fetch(PDO::FETCH_ASSOC)){
                             echo "<tr><td>{$proc['id']}</td><td><strong>{$proc['numero_processo']}</strong></td><td>".($proc['nome_cliente'] ? $proc['nome_cliente'] : '<i>Desconhecido</i>')."</td><td>{$proc['descricao']}</td><td>{$proc['status']}</td><td>";
                             echo "<a class='btn btn-sm btn-primary' href='editProcesso.php?id={$proc['id']}'><i class='bi bi-pencil'></i></a> ";
-                            echo "<a class='btn btn-sm btn-danger' href='deleteProcesso.php?id={$proc['id']}' onclick=\"return confirm('Apagar processo?')\"><i class='bi bi-trash-fill'></i></a>";
+                            
+                            echo "<a class='btn btn-sm btn-danger' href='#' onclick=\"confirmarExclusao(event, 'deleteProcesso.php?id={$proc['id']}')\"><i class='bi bi-trash-fill'></i></a>";
+                            
                             echo "</td></tr>";
                         } ?>
                     </tbody>
                 </table>
             </div>
 
-        <?php } elseif($pagina_atual == 'documentos'){
+        <?php } elseif($pagina_atual == 'documentos'){ 
              $id_usuario_logado = $_SESSION['id_usuario'] ?? 0;
              if($perm == 1){ $sqlDocs = "SELECT d.*, u.nome as nome_usuario FROM documentos d JOIN usuarios u ON d.usuario_id = u.id ORDER BY d.data_upload DESC"; } 
              else { $sqlDocs = "SELECT d.*, u.nome as nome_usuario FROM documentos d JOIN usuarios u ON d.usuario_id = u.id WHERE d.usuario_id = $id_usuario_logado ORDER BY d.data_upload DESC"; }
@@ -198,17 +204,86 @@
                     while($doc = $stmtDocs->fetch(PDO::FETCH_ASSOC)){ $dataForm = date('d/m/Y H:i', strtotime($doc['data_upload']));
                     echo "<tr><td>{$doc['codigo_identificador']}</td><td>{$doc['tipo_documento']}</td><td>{$doc['caminho_arquivo']}</td><td>{$doc['nome_usuario']}</td><td>$dataForm</td><td>";
                     echo "<a href='uploads/{$doc['caminho_arquivo']}' target='_blank' class='btn btn-sm btn-light'><i class='bi bi-eye-fill text-success'></i></a>";
-                    if($perm == 1){ echo " <a class='btn btn-sm btn-danger' href='deleteDoc.php?id={$doc['id']}' onclick=\"return confirm('Tem certeza?')\"><i class='bi bi-trash-fill'></i></a>"; }
+                    
+                    if($perm == 1){ 
+                        echo " <a class='btn btn-sm btn-danger' href='#' onclick=\"confirmarExclusao(event, 'deleteDoc.php?id={$doc['id']}')\"><i class='bi bi-trash-fill'></i></a>"; 
+                    }
                     echo "</td></tr>"; } } ?>
             </tbody></table></div>
         <?php } ?>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
         var search = document.getElementById('pesquisar');
         if(search){ search.addEventListener("keydown", function(event) { if (event.key === "Enter") { searchData(); } }); }
         function searchData(){ window.location = 'sistema.php?page=<?php echo $pagina_atual; ?>&busca='+search.value; }
-        window.onload = function() { var toastEl = document.getElementById('liveToast'); if (toastEl) { var toast = new bootstrap.Toast(toastEl, { delay: 4000 }); toast.show(); } }
+        
+        function confirmarExclusao(event, url) {
+            event.preventDefault();
+
+            Swal.fire({
+                title: 'Tem certeza?',
+                text: "Você não poderá reverter isso!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, excluir!',
+                cancelButtonText: 'Cancelar',
+                background: '#1f1f1f',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            })
+        }
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const msg = urlParams.get('msg');
+
+            if(msg === 'deletado'){
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Excluído!',
+                    text: 'O registro foi apagado com sucesso.',
+                    background: '#1f1f1f',
+                    color: '#fff',
+                    confirmButtonColor: 'limegreen'
+                });
+            } else if(msg === 'atualizado'){
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Atualizado!',
+                    text: 'Dados salvos com sucesso.',
+                    background: '#1f1f1f',
+                    color: '#fff',
+                    confirmButtonColor: 'limegreen'
+                });
+            } else if(msg === 'cadastrado'){
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Cadastrado!',
+                    text: 'Novo registro criado com sucesso.',
+                    background: '#1f1f1f',
+                    color: '#fff',
+                    confirmButtonColor: 'limegreen'
+                });
+            } else if(msg === 'sem_permissao'){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acesso Negado',
+                    text: 'Você não tem permissão para realizar essa ação.',
+                    background: '#1f1f1f',
+                    color: '#fff',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        }
     </script>
 </body>
 </html>
