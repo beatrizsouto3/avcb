@@ -26,18 +26,24 @@
             $representante_nome = $_POST['representante_nome'];
             $representante_cpf = $_POST['representante_cpf'];
             $representante_cargo = $_POST['representante_cargo'];
+            $representante_email = $_POST['representante_email'];
+            
+            $perfil_cliente = $_POST['perfil_cliente']; 
+            $origem_contato = $_POST['origem_contato'];
+            $observacoes = $_POST['observacoes'];
         } else {
             $cpf_cnpj = $_POST['cpf'];
             $rg = $_POST['rg'];
-            $inscricao_estadual = $representante_nome = $representante_cpf = $representante_cargo = "";
+            $inscricao_estadual = $representante_nome = $representante_cpf = $representante_cargo = $representante_email = "";
+            $perfil_cliente = $origem_contato = $observacoes = "";
         }
 
         $cep = $_POST['cep']; $logradouro = $_POST['logradouro']; $numero = $_POST['numero'];
         $complemento = $_POST['complemento']; $bairro = $_POST['bairro'];
         $cidade = $_POST['cidade']; $estado = $_POST['estado'];
+        $ponto_referencia = $_POST['ponto_referencia'];
+        
         $telefone = $_POST['telefone']; $celular = $_POST['celular']; $email = $_POST['email'];
-        $perfil_cliente = $_POST['perfil_cliente']; $origem_contato = $_POST['origem_contato'];
-        $observacoes = $_POST['observacoes'];
         
         if($_SESSION['permissao'] == 1){
             $permissao_id = $_POST['permissao_id'];
@@ -58,15 +64,15 @@
             
             $sql = "INSERT INTO usuarios (
                 nome, nome_fantasia, data_nascimento_fundacao, tipo_cliente, cpf_cnpj, rg, inscricao_estadual,
-                representante_nome, representante_cpf, representante_cargo,
-                cep, logradouro, numero, complemento, bairro, cidade, estado,
+                representante_nome, representante_cpf, representante_cargo, representante_email,
+                cep, logradouro, numero, complemento, bairro, cidade, estado, ponto_referencia,
                 telefone, celular, email, senha,
                 perfil_cliente, origem_contato, observacoes,
                 permissao_id, primeiro_acesso
             ) VALUES (
                 :nome, :nome_fantasia, :data_referencia, :tipo_cliente, :cpf_cnpj, :rg, :inscricao_estadual,
-                :representante_nome, :representante_cpf, :representante_cargo,
-                :cep, :logradouro, :numero, :complemento, :bairro, :cidade, :estado,
+                :representante_nome, :representante_cpf, :representante_cargo, :representante_email,
+                :cep, :logradouro, :numero, :complemento, :bairro, :cidade, :estado, :ponto_referencia,
                 :telefone, :celular, :email, :senha,
                 :perfil_cliente, :origem_contato, :observacoes,
                 :permissao_id, 'true'
@@ -77,9 +83,10 @@
                 $stmt->execute([
                     ':nome' => $nome, ':nome_fantasia' => $nome_fantasia, ':data_referencia' => $data_referencia,
                     ':tipo_cliente' => $tipo_cliente, ':cpf_cnpj' => $cpf_cnpj, ':rg' => $rg, ':inscricao_estadual' => $inscricao_estadual,
-                    ':representante_nome' => $representante_nome, ':representante_cpf' => $representante_cpf, ':representante_cargo' => $representante_cargo,
+                    ':representante_nome' => $representante_nome, ':representante_cpf' => $representante_cpf, 
+                    ':representante_cargo' => $representante_cargo, ':representante_email' => $representante_email,
                     ':cep' => $cep, ':logradouro' => $logradouro, ':numero' => $numero, ':complemento' => $complemento,
-                    ':bairro' => $bairro, ':cidade' => $cidade, ':estado' => $estado,
+                    ':bairro' => $bairro, ':cidade' => $cidade, ':estado' => $estado, ':ponto_referencia' => $ponto_referencia,
                     ':telefone' => $telefone, ':celular' => $celular, ':email' => $email, ':senha' => $senha,
                     ':perfil_cliente' => $perfil_cliente, ':origem_contato' => $origem_contato,
                     ':observacoes' => $observacoes, ':permissao_id' => $permissao_id
@@ -109,16 +116,10 @@
         body{
             font-family: Arial, Helvetica, sans-serif;
             background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35));
-            min-height: 100vh;
-            padding: 20px;
-            color: white;
+            min-height: 100vh; padding: 20px; color: white;
         }
         .container-box {
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 900px;
-            margin: auto;
+            background-color: rgba(0, 0, 0, 0.7); padding: 30px; border-radius: 15px; max-width: 900px; margin: auto;
         }
         fieldset { border: 1px solid limegreen; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
         legend { 
@@ -126,10 +127,7 @@
             padding: 5px 15px; border-radius: 5px; color: black; font-weight: bold; font-size: 1rem;
         }
         label { font-weight: bold; margin-bottom: 5px; display: block; font-size: 0.9rem; }
-        .form-control, .form-select {
-            background: rgba(255,255,255,0.9);
-            border: none; margin-bottom: 15px;
-        }
+        .form-control, .form-select { background: rgba(255,255,255,0.9); border: none; margin-bottom: 15px; }
         .btn-custom {
             background-image: linear-gradient(to right, rgb(50, 205, 50), rgb(34, 139, 34));
             width: 100%; border: none; padding: 15px; color: white; font-size: 16px;
@@ -146,16 +144,34 @@
         function toggleTipoCliente(tipo) {
             document.getElementById('area_pf').classList.add('hidden');
             document.getElementById('area_pj').classList.add('hidden');
+            document.getElementById('area_comercial').classList.add('hidden');
+
+            var inputCPF = document.getElementById('cpf');
+            var inputCNPJ = document.getElementById('cnpj');
+            var inputRepCPF = document.getElementById('representante_cpf');
+            var inputRepEmail = document.getElementById('representante_email');
+
             if(tipo === 'PF'){
                 document.getElementById('area_pf').classList.remove('hidden');
-                document.getElementById('cpf').required = true;
-                document.getElementById('cnpj').required = false;
+                
+                inputCPF.required = true;
+                inputCNPJ.required = false;
+                
+                if(inputRepCPF) inputRepCPF.required = false;
+                if(inputRepEmail) inputRepEmail.required = false;
+
             } else {
                 document.getElementById('area_pj').classList.remove('hidden');
-                document.getElementById('cpf').required = false;
-                document.getElementById('cnpj').required = true;
+                document.getElementById('area_comercial').classList.remove('hidden');
+
+                inputCPF.required = false;
+                inputCNPJ.required = true;
+
+                if(inputRepCPF) inputRepCPF.required = true;
+                if(inputRepEmail) inputRepEmail.required = true;
             }
         }
+
         function mascara(i, t) {
             var v = i.value;
             v = v.replace(/\D/g, "");
@@ -202,16 +218,18 @@
                     <div class="col-half"><label>RG</label><input type="text" name="rg" class="form-control"></div>
                 </div>
             </div>
+            
             <div id="area_pj" class="hidden">
                 <div class="row">
                     <div class="col-half"><label>CNPJ *</label><input type="text" name="cnpj" id="cnpj" class="form-control" oninput="mascara(this, 'cnpj')"></div>
                     <div class="col-half"><label>Inscrição Estadual</label><input type="text" name="inscricao_estadual" class="form-control"></div>
                 </div>
-                <h4 style="margin-top:15px; color:limegreen; font-size:1rem;">Representante Legal</h4>
+                <h4 style="margin-top:15px; color:limegreen; font-size:1rem;">♢ Representante Legal</h4>
                 <div class="row">
                     <div class="col-half"><label>Nome</label><input type="text" name="representante_nome" class="form-control"></div>
-                    <div class="col-half"><label>CPF</label><input type="text" name="representante_cpf" class="form-control" oninput="mascara(this, 'cpf')"></div>
+                    <div class="col-half"><label>CPF *</label><input type="text" name="representante_cpf" id="representante_cpf" class="form-control" oninput="mascara(this, 'cpf')"></div>
                     <div class="col-half"><label>Cargo</label><input type="text" name="representante_cargo" class="form-control"></div>
+                    <div class="col-half"><label>E-mail *</label><input type="email" name="representante_email" id="representante_email" class="form-control"></div>
                 </div>
             </div>
         </fieldset>
@@ -228,14 +246,15 @@
                 <div class="col-half"><label>Cidade</label><input type="text" name="cidade" class="form-control"></div>
                 <div class="col-half"><label>UF</label><input type="text" name="estado" class="form-control" maxlength="2"></div>
                 <div class="col-half"><label>Complemento</label><input type="text" name="complemento" class="form-control"></div>
+                <div class="col-half"><label>Ponto de Referência</label><input type="text" name="ponto_referencia" class="form-control"></div>
             </div>
         </fieldset>
 
         <fieldset>
             <legend>Acesso e Contato</legend>
             <div class="row">
-                <div class="col-half"><label>E-mail *</label><input type="email" name="email" class="form-control" required></div>
-                <div class="col-half"><label>Celular / Zap *</label><input type="text" name="celular" class="form-control" oninput="mascara(this, 'tel')" required></div>
+                <div class="col-half"><label>E-mail (Login) *</label><input type="email" name="email" class="form-control" required></div>
+                <div class="col-half"><label>Celular / WhatsApp *</label><input type="text" name="celular" class="form-control" oninput="mascara(this, 'tel')" required></div>
                 <div class="col-half"><label>Telefone Fixo</label><input type="text" name="telefone" class="form-control" oninput="mascara(this, 'tel')"></div>
             </div>
             <div class="row">
@@ -255,7 +274,7 @@
             </div>
         </fieldset>
 
-        <fieldset>
+        <fieldset id="area_comercial" class="hidden">
             <legend>Info. Comerciais</legend>
             <div class="row">
                 <div class="col-half"><label>Perfil</label><select name="perfil_cliente" class="form-select"><option>Residencial</option><option>Comercial</option></select></div>
