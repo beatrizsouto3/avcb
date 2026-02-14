@@ -83,18 +83,18 @@
         <div class="logo-icon">
             <i class="bi bi-shield-lock"></i>
         </div>
-        <h1>SISTEMA DE GESTÃO</h1>
+        <h1>SISTEMA AVCB</h1>
         
         <div class="d-grid gap-2">
             <a href="login.php" class="btn-inicio">
                 <i class="bi bi-box-arrow-in-right me-2"></i> Aceder ao Sistema
             </a>
             <a href="cadastro.php" class="btn-inicio">
-                <i class="bi bi-person-plus me-2"></i> Criar Conta
+                <i class="bi bi-person-plus me-2"></i> Registra-se
             </a>
         </div>
         
-        <p class="mt-4 opacity-50 small">Versão 2.0 | Minimalist Edition</p>
+        <p class="mt-4 opacity-50 small">© 2026 SISTEMA AVCB | Todos os direitos reservados.</p>
     </div>
 
     <script>

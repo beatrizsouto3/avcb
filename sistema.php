@@ -97,7 +97,7 @@
     <nav class="sidebar">
         <div class="mb-5 px-2">
             <h5 class="fw-bold m-0 text-uppercase">AVCB ♢<span class="fw-light"> SISTEMA</span></h5>
-            <small class="opacity-50">○ Usuário: <?php echo explode('@', $logado)[0]; ?></small>
+            <small class="opacity-50">⏺︎ Usuário: <?php echo explode('@', $logado)[0]; ?></small>
         </div>
 
         <ul class="nav flex-column">
