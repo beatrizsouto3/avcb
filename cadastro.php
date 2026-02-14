@@ -2,196 +2,137 @@
 $sucesso = false;
 $erroEmail = false;
 
-$nome = $nome_fantasia = $data_referencia = $cpf_cnpj = $rg = $inscricao_estadual = "";
-$representante_nome = $representante_cpf = $representante_cargo = "";
-$cep = $logradouro = $numero = $complemento = $bairro = $cidade = $estado = "";
-$telefone = $celular = $email = "";
-$perfil_cliente = $origem_contato = $observacoes = "";
-
-if (isset($_POST['submit'])) {
-    include_once('config.php');
-
-    $tipo_cliente = $_POST['tipo_cliente'];
-    $nome = $_POST['nome'];
-    $nome_fantasia = $_POST['nome_fantasia'];
-    $data_referencia = !empty($_POST['data_referencia']) ? $_POST['data_referencia'] : null;
-    
-    if($tipo_cliente == 'PJ'){
-        $cpf_cnpj = $_POST['cnpj'];
-        $rg = ""; 
-        $inscricao_estadual = $_POST['inscricao_estadual'];
-        $representante_nome = $_POST['representante_nome'];
-        $representante_cpf = $_POST['representante_cpf'];
-        $representante_cargo = $_POST['representante_cargo'];
-    } else {
-        $cpf_cnpj = $_POST['cpf'];
-        $rg = $_POST['rg'];
-        $inscricao_estadual = $representante_nome = $representante_cpf = $representante_cargo = "";
-    }
-
-    $cep = $_POST['cep']; $logradouro = $_POST['logradouro']; $numero = $_POST['numero'];
-    $complemento = $_POST['complemento']; $bairro = $_POST['bairro'];
-    $cidade = $_POST['cidade']; $estado = $_POST['estado'];
-
-    $telefone = $_POST['telefone']; $celular = $_POST['celular']; $email = $_POST['email'];
-
-    $perfil_cliente = $_POST['perfil_cliente']; $origem_contato = $_POST['origem_contato'];
-    $observacoes = $_POST['observacoes'];
-    $lgpd = isset($_POST['lgpd']) ? 'true' : 'false';
-
-    $sqlVerifica = "SELECT id FROM usuarios WHERE email = :email";
-    $stmtVerifica = $pdo->prepare($sqlVerifica);
-    $stmtVerifica->execute([':email' => $email]);
-
-    if($stmtVerifica->rowCount() > 0){
-        $erroEmail = true;
-    }
-    else {
-        $senhaLimpa = substr(md5(time()), 0, 8);
-        $senha = md5($senhaLimpa); 
-        
-        $sql = "INSERT INTO usuarios (
-            nome, nome_fantasia, data_nascimento_fundacao, tipo_cliente, cpf_cnpj, rg, inscricao_estadual,
-            representante_nome, representante_cpf, representante_cargo,
-            cep, logradouro, numero, complemento, bairro, cidade, estado,
-            telefone, celular, email, senha,
-            perfil_cliente, origem_contato, observacoes, lgpd,
-            permissao_id, primeiro_acesso
-        ) VALUES (
-            :nome, :nome_fantasia, :data_referencia, :tipo_cliente, :cpf_cnpj, :rg, :inscricao_estadual,
-            :representante_nome, :representante_cpf, :representante_cargo,
-            :cep, :logradouro, :numero, :complemento, :bairro, :cidade, :estado,
-            :telefone, :celular, :email, :senha,
-            :perfil_cliente, :origem_contato, :observacoes, :lgpd,
-            2, 'true'
-        )";
-
-        try {
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':nome' => $nome, ':nome_fantasia' => $nome_fantasia, ':data_referencia' => $data_referencia,
-                ':tipo_cliente' => $tipo_cliente, ':cpf_cnpj' => $cpf_cnpj, ':rg' => $rg, ':inscricao_estadual' => $inscricao_estadual,
-                ':representante_nome' => $representante_nome, ':representante_cpf' => $representante_cpf, ':representante_cargo' => $representante_cargo,
-                ':cep' => $cep, ':logradouro' => $logradouro, ':numero' => $numero, ':complemento' => $complemento,
-                ':bairro' => $bairro, ':cidade' => $cidade, ':estado' => $estado,
-                ':telefone' => $telefone, ':celular' => $celular, ':email' => $email, ':senha' => $senha,
-                ':perfil_cliente' => $perfil_cliente, ':origem_contato' => $origem_contato,
-                ':observacoes' => $observacoes, ':lgpd' => $lgpd
-            ]);
-            
-            include_once('enviarEmail.php');
-            enviarEmailBoasVindas($nome, $email, $senhaLimpa);
-            $sucesso = true;
-
-        } catch (PDOException $e) {
-            echo "<script>alert('Erro no banco: " . $e->getMessage() . "');</script>";
-        }
-    }
-}
 ?>
-
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <title>Registro</title>
+    <title>REGISTRO | AVCB</title>
     <style>
-        body{
-            font-family: Arial, Helvetica, sans-serif;
-            background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35));
+        body {
+            background-color: #000;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000 100%);
             min-height: 100vh;
-            padding: 20px;
-            color: white;
             display: flex;
-            align-items: center; 
             justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
-        .container-box {
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 900px;
-            width: 100%;
-            margin: auto;
-        }
-        fieldset { border: 1px solid limegreen; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        legend { float: none; width: auto; background-color: limegreen; padding: 5px 15px; border-radius: 5px; color: black; font-weight: bold; font-size: 1rem; }
-        label { font-weight: bold; margin-bottom: 5px; display: block; font-size: 0.9rem; }
-        .form-control, .form-select { background: rgba(255,255,255,0.9); border: none; margin-bottom: 15px; }
-        .btn-custom { background-image: linear-gradient(to right, rgb(50, 205, 50), rgb(34, 139, 34)); width: 100%; border: none; padding: 15px; color: white; font-size: 16px; cursor: pointer; border-radius: 10px; font-weight: bold; margin-top: 10px; }
-        .hidden { display: none; }
-        .row { display: flex; flex-wrap: wrap; gap: 15px; }
-        .col-half { flex: 1 1 45%; }
-        .col-full { flex: 1 1 100%; }
-        .msg-erro { background: #ffcccc; color: #cc0000; padding: 10px; border-radius: 5px; text-align: center; }
-        .sucesso-box { text-align: center; padding: 50px; }
 
-        .aviso-container { text-align: center; padding: 20px; }
-        
+        .container-box {
+            background-color: #111;
+            padding: 50px;
+            border-radius: 0px;
+            border: 1px solid #333;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .logo-area {
+            margin-bottom: 30px;
+        }
+
+        .logo-area i {
+            font-size: 3rem;
+            color: #fff;
+        }
+
+        h2 {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        p.lead {
+            color: #888;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
         .contato-destaque {
-            font-size: 1.5rem; 
-            color: limegreen; 
-            font-weight: bold; 
-            margin: 20px 0;
-            border: 2px dashed limegreen; 
-            padding: 15px; 
-            border-radius: 10px; 
-            display: inline-block;
+            background: #fff;
+            color: #000;
+            padding: 20px;
+            margin-bottom: 30px;
+            transition: 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            border: 2px solid #fff;
+        }
+
+        .contato-destaque:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        .contato-destaque i {
+            font-size: 1.5rem;
+        }
+
+        .contato-destaque span {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .btn-voltar {
+            color: #666;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
             transition: 0.3s;
         }
-        .contato-destaque:hover {
-            background-color: rgba(50, 205, 50, 0.1);
-            cursor: pointer;
+
+        .btn-voltar:hover {
+            color: #fff;
+        }
+
+        .divider {
+            height: 1px;
+            background: #333;
+            margin: 30px 0;
         }
     </style>
-    
-    <script>
-        function toggleTipoCliente(tipo) {
-            document.getElementById('area_pf').classList.add('hidden');
-            document.getElementById('area_pj').classList.add('hidden');
-            if(tipo === 'PF'){
-                document.getElementById('area_pf').classList.remove('hidden');
-                document.getElementById('cpf').required = true;
-                document.getElementById('cnpj').required = false;
-            } else {
-                document.getElementById('area_pj').classList.remove('hidden');
-                document.getElementById('cpf').required = false;
-                document.getElementById('cnpj').required = true;
-            }
-        }
-        function mascara(i, t) {
-            var v = i.value;
-            v = v.replace(/\D/g, "");
-            if (t == 'cpf') { v = v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2"); i.setAttribute("maxlength", "14"); }
-            else if (t == 'cnpj') { v = v.replace(/^(\d{2})(\d)/, "$1.$2").replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3").replace(/\.(\d{3})(\d)/, ".$1/$2").replace(/(\d{4})(\d)/, "$1-$2"); i.setAttribute("maxlength", "18"); }
-            else if (t == 'tel') { i.setAttribute("maxlength", "15"); v = v.replace(/^(\d{2})(\d)/g, "($1) $2").replace(/(\d)(\d{4})$/, "$1-$2"); }
-            else if (t == 'cep') { v = v.replace(/^(\d{5})(\d)/, "$1-$2"); i.setAttribute("maxlength", "9"); }
-            i.value = v;
-        }
-    </script>
 </head>
 <body>
 
 <div class="container-box">
-    
-    <div class="aviso-container">
-        <h2 class="mb-4">Registro no Sistema</h2>
-        <p class="lead">Para se registrar no nosso sistema, por favor, entre em contato conosco:</p>
-        
-        <div class="contato-destaque">
-            <a href="https://wa.me/5584994243320?text=Olá,%20gostaria%20de%20me%20registrar%20no%20sistema." 
-               target="_blank" 
-               style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
-                <i class="bi bi-whatsapp"></i> (84) 99424-3320
-            </a>
-        </div>
-        
-        <br><br>
-        <a href="inicio.php" style="color:white; text-decoration:none; border:1px solid white; padding:10px 20px; border-radius:5px;">Voltar ao Início</a>
+    <div class="logo-area">
+        <i class="bi bi-shield-lock"></i>
     </div>
+    
+    <h2>SOLICITAR ACESSO</h2>
+    <p class="lead">O registro de novos clientes é realizado exclusivamente pela nossa equipa administrativa.</p>
+    
+    <div class="divider"></div>
+
+    <p class="small text-uppercase opacity-50 mb-3">Fale connosco via WhatsApp</p>
+    
+    <a href="https://wa.me/5584994243320" target="_blank" class="contato-destaque">
+        <i class="bi bi-whatsapp"></i>
+        <span>(84) 99424-3320</span>
+    </a>
+
+    <p class="text-muted small px-4">
+        Ao entrar em contacto, tenha em mãos os seus dados de identificação (CPF/CNPJ) para agilizar o processo.
+    </p>
+
+    <div class="divider"></div>
+
+    <a href="login.php" class="btn-voltar">
+        <i class="bi bi-arrow-left me-2"></i> Voltar para o Login
+    </a>
+</div>
 
 </body>
 </html>

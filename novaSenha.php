@@ -22,6 +22,7 @@
             $sql = "UPDATE usuarios SET senha = :senha, primeiro_acesso = 'false' WHERE id = :id";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':senha' => $senha_md5, ':id' => $id]);
+            
             $_SESSION['senha'] = $senha_md5;
             $sucesso = true;
         } else {
@@ -31,95 +32,114 @@
 ?>
 
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <title>Definir Nova Senha</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <title>Criar Senha | B&W</title>
     <style>
-        body{
-            font-family: Arial, Helvetica, sans-serif;
-            background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35));
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            color: white;
-            padding: 20px;
+        body { 
+            background-color: var(--bs-body-bg); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            color: var(--bs-body-color);
+            transition: all 0.3s ease;
         }
-        .box{
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            width: 100%;
-            max-width: 500px;
+        .box { 
+            background-color: var(--bs-tertiary-bg); 
+            padding: 50px; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 450px; 
+            border: 1px solid var(--bs-border-color); 
+            text-align: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        input{
-            padding: 15px;
-            width: 100%;
-            border-radius: 5px;
-            border: none;
-            outline: none;
-            margin-bottom: 20px;
-            font-size: 15px;
-            box-sizing: border-box;
+        .form-control {
+            background-color: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            margin-bottom: 15px;
+            padding: 12px;
         }
-        .btn-custom {
-            background-image: linear-gradient(to right, rgb(50, 205, 50), rgb(34, 139, 34));
-            width: 100%;
-            border: none;
-            padding: 15px;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 10px;
+        .btn-custom { 
+            background-color: var(--bs-emphasis-color); 
+            border: none; 
+            width: 100%; 
+            padding: 12px; 
+            color: var(--bs-body-bg); 
+            font-weight: 800; 
+            border-radius: 6px; 
+            text-transform: uppercase;
             text-decoration: none;
             display: inline-block;
-            box-sizing: border-box;
-            font-weight: bold;
         }
-        .btn-custom:hover{
-            background-image: linear-gradient(to right, rgb(34, 139, 34), rgb(0, 100, 0));
-        }
-        h2{ margin-bottom: 20px; }
-        p { font-size: 14px; color: #ccc; margin-bottom: 30px;}
-        .sucesso-titulo { color: limegreen; font-size: 1.5rem; margin-bottom: 15px; }
-        .sucesso-texto { font-size: 1.1rem; margin-bottom: 30px; color: white; }
+        .btn-custom:hover { opacity: 0.8; color: var(--bs-body-bg); }
         .msg-erro {
-            color: #ffcccc;
-            background-color: rgba(255, 0, 0, 0.2);
+            color: #ff4444;
+            background-color: rgba(255, 0, 0, 0.1);
             padding: 10px;
-            border: 1px solid red;
             border-radius: 5px;
             margin-bottom: 20px;
-            font-size: 14px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 0, 0, 0.2);
         }
     </style>
 </head>
 <body>
-    
+
+    <div class="position-fixed top-0 end-0 p-3">
+        <button class="btn btn-outline-secondary btn-sm" id="btn-tema">
+            <i class="bi bi-moon-stars-fill"></i> TEMA
+        </button>
+    </div>
+
     <?php if($sucesso == true): ?>
         <div class="box">
-            <h2 class="sucesso-titulo">Tudo pronto!</h2>
-            <p class="sucesso-texto">Sua senha definitiva foi criada com sucesso.</p>
+            <i class="bi bi-check-circle display-1 mb-4"></i>
+            <h2 class="fw-bold mb-3">TUDO PRONTO!</h2>
+            <p class="opacity-75 mb-4">Sua senha definitiva foi criada com sucesso.</p>
             <a href="sistema.php" class="btn-custom">Entrar no Sistema</a>
         </div>
     <?php else: ?>
         <div class="box">
-            <h2>Criar Senha</h2>
-            <p>Como este é seu primeiro acesso, defina sua senha pessoal.</p>
+            <i class="bi bi-key-fill display-4 mb-3"></i>
+            <h2 class="fw-bold mb-2 text-uppercase">Criar Senha</h2>
+            <p class="opacity-75 mb-4">Como este é seu primeiro acesso, defina sua senha pessoal de acesso.</p>
+            
             <?php if($erro == true): ?>
                 <div class="msg-erro">As senhas digitadas não coincidem. Tente novamente.</div>
             <?php endif; ?>
+
             <form action="novaSenha.php" method="POST">
-                <input type="password" name="nova_senha" placeholder="Nova Senha" required minlength="4">
-                <input type="password" name="confirmar_senha" placeholder="Confirme a Nova Senha" required minlength="4">
-                <button type="submit" name="submit" class="btn-custom">Salvar e Entrar</button>
+                <input type="password" name="nova_senha" placeholder="Nova Senha" class="form-control" required minlength="6">
+                <input type="password" name="confirmar_senha" placeholder="Confirmar Senha" class="form-control" required>
+                <button type="submit" name="submit" class="btn-custom">Salvar e Continuar</button>
             </form>
         </div>
     <?php endif; ?>
+
+    <script>
+        const btnTema = document.getElementById('btn-tema');
+        const html = document.documentElement;
+
+        const aplicarTema = (tema) => {
+            html.setAttribute('data-bs-theme', tema);
+            localStorage.setItem('tema', tema);
+            const icone = btnTema.querySelector('i');
+            icone.className = tema === 'dark' ? 'bi bi-moon-stars-fill' : 'bi bi-brightness-high-fill';
+        };
+
+        const temaSalvo = localStorage.getItem('tema') || 'dark';
+        aplicarTema(temaSalvo);
+
+        btnTema.addEventListener('click', () => {
+            const novoTema = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+            aplicarTema(novoTema);
+        });
+    </script>
 </body>
 </html>

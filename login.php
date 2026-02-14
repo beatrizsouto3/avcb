@@ -1,65 +1,166 @@
 <?php session_start(); ?>
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
-    <title>Tela de login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <title>Login | Sistema AVCB</title>
     <style>
-        body{
-            font-family: Arial, Helvetica, sans-serif;
-            background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35));
-            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            transition: all 0.3s ease;
         }
-        .tela-login{
-            background-color: rgba(0, 0, 0, 0.6); padding: 40px; border-radius: 15px; color: white; width: 90%; max-width: 450px;
+
+        .tela-login {
+            background-color: var(--bs-tertiary-bg);
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--bs-border-color);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
         }
-        input{ padding: 12px; border: none; outline: none; font-size: 15px; width: 100%; border-radius: 5px; margin-bottom: 15px; }
-        .inputSubmit{ background-color: limegreen; border: none; padding: 15px; width: 100%; border-radius: 10px; color: white; font-size: 16px; cursor: pointer; font-weight: bold; }
-        .inputSubmit:hover{ background-color: #32CD32; }
-        .btn-voltar{ text-decoration: none; color: white; border: 1px solid limegreen; border-radius: 5px; padding: 5px 10px; background-color: transparent; font-size: 0.9rem; }
-        .btn-voltar:hover{ background-color: limegreen; }
-        .erro-msg { color: #ffcccc; background-color: rgba(255, 0, 0, 0.2); padding: 10px; border: 1px solid red; border-radius: 5px; margin-bottom: 20px; text-align: center; font-size: 14px; }
-        h1 { text-align: center; margin-bottom: 30px; }
+
+        h1 {
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-control {
+            background-color: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .form-control:focus {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            border-color: var(--bs-emphasis-color);
+            box-shadow: none;
+        }
+
+        .inputSubmit {
+            background-color: var(--bs-emphasis-color);
+            color: var(--bs-body-bg);
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .inputSubmit:hover {
+            opacity: 0.8;
+        }
+
+        .erro-msg {
+            color: #ff4d4d;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .link-footer {
+            color: var(--bs-body-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .link-footer:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
     </style>
 </head>
 <body>
+
+    <div class="theme-toggle">
+        <button class="btn btn-sm btn-outline-secondary" id="btn-tema">
+            <i class="bi bi-moon-stars-fill"></i>
+        </button>
+    </div>
+
     <div class="tela-login">
-        <a href="inicio.php" class="btn-voltar">⭠ Voltar</a>
-        <br><br>
-        <h1>Login</h1>
+        <h1>LOGIN</h1>
         <form action="testLogin.php" method="POST">
-            <input type="text" name="email" placeholder="Email" class="form-control" required>
-            <input type="password" name="senha" placeholder="Senha" class="form-control" required>
+            <div class="mb-3 text-start">
+                <label class="form-label small opacity-50">E-mail</label>
+                <input type="text" name="email" class="form-control" required>
+            </div>
             
-            <div style="text-align: right; margin-bottom: 15px;">
-                <a href="esqueciSenha.php" style="color: limegreen; text-decoration: none; font-size: 0.9rem;">Esqueci minha senha</a>
+            <div class="mb-3 text-start">
+                <label class="form-label small opacity-50">Palavra-passe</label>
+                <input type="password" name="senha" class="form-control" required>
+            </div>
+            
+            <div class="text-end mb-4">
+                <a href="esqueciSenha.php" class="link-footer">Esqueceu-se da senha?</a>
             </div>
 
             <?php if(isset($_SESSION['nao_autenticado'])): ?>
-            <div class="erro-msg">Usuário ou senha inválidos.</div>
+                <div class="erro-msg">Utilizador ou senha inválidos.</div>
             <?php endif; unset($_SESSION['nao_autenticado']); ?>
             
-            <br>
             <input class="inputSubmit" type="submit" name="submit" value="Entrar">
         </form>
+        
+        <div class="text-center mt-4">
+            <a href="inicio.php" class="link-footer"><i class="bi bi-arrow-left"></i> Voltar</a>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const btnTema = document.getElementById('btn-tema');
+        const html = document.documentElement;
+
+        const setTema = (tema) => {
+            html.setAttribute('data-bs-theme', tema);
+            localStorage.setItem('tema', tema);
+            const icon = btnTema.querySelector('i');
+            icon.className = tema === 'dark' ? 'bi bi-moon-stars-fill' : 'bi bi-brightness-high-fill';
+        };
+
+        const temaSalvo = localStorage.getItem('tema') || 'dark';
+        setTema(temaSalvo);
+
+        btnTema.addEventListener('click', () => {
+            const novo = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+            setTema(novo);
+        });
+
         const urlParams = new URLSearchParams(window.location.search);
         const msg = urlParams.get('msg');
-
         if(msg === 'recuperacao_ok') {
             Swal.fire({
                 icon: 'success',
                 title: 'E-mail Enviado!',
-                text: 'Uma senha temporária foi enviada para o seu e-mail. Verifique sua caixa de entrada (e spam).',
-                background: '#1f1f1f',
-                color: '#fff',
-                confirmButtonColor: 'limegreen'
+                text: 'Verifique a sua caixa de entrada.',
+                background: temaSalvo === 'dark' ? '#121212' : '#fff',
+                color: temaSalvo === 'dark' ? '#fff' : '#000',
+                confirmButtonColor: '#000'
             });
         }
     </script>

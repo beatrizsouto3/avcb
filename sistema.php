@@ -6,284 +6,261 @@
         unset($_SESSION['email']);
         unset($_SESSION['senha']);
         header('Location: login.php');
+        exit;
     }
+    
     $logado = $_SESSION['email'];
     $perm = $_SESSION['permissao'];
+    $id_user_logado = $_SESSION['id_usuario'];
 
-    if(isset($_SESSION['id_usuario'])){
-        $id_verificacao = $_SESSION['id_usuario'];
-        $sqlCheck = "SELECT primeiro_acesso FROM usuarios WHERE id = $id_verificacao";
-        $stmtCheck = $pdo->query($sqlCheck);
-        if($stmtCheck && $stmtCheck->rowCount() > 0){
-            $statusCheck = $stmtCheck->fetch(PDO::FETCH_ASSOC);
-            if($statusCheck['primeiro_acesso'] == 'true'){
-                header('Location: definirSenha.php');
-                exit;
-            }
+    $sqlCheck = "SELECT primeiro_acesso FROM usuarios WHERE id = $id_user_logado";
+    $stmtCheck = $pdo->query($sqlCheck);
+    if($stmtCheck && $stmtCheck->rowCount() > 0){
+        $statusCheck = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+        if($statusCheck['primeiro_acesso'] == 'true' || $statusCheck['primeiro_acesso'] == 1){
+            header('Location: definirSenha.php');
+            exit;
         }
     }
 
     $pagina_atual = isset($_GET['page']) ? $_GET['page'] : 'home';
-
-    if($pagina_atual == 'usuarios' && $perm != 1 && $perm != 3){ header('Location: sistema.php'); exit; }
-    if($pagina_atual == 'processos' && $perm != 3){ header('Location: sistema.php'); exit; }
-
-    if($pagina_atual == 'usuarios'){
-        $where = "";
-        if($perm == 3){ $where = " AND permissao_id = 2"; }
-        if(!empty($_GET['busca'])) {
-            $data = $_GET['busca'];
-            $sql = "SELECT * FROM usuarios WHERE (nome ILIKE '%$data%' OR email ILIKE '%$data%') $where ORDER BY id DESC";
-        } else {
-            $sql = "SELECT * FROM usuarios WHERE 1=1 $where ORDER BY id DESC";
-        }
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-    }
-
-    if($pagina_atual == 'processos'){
-        $sqlBase = "SELECT p.*, u.nome AS nome_cliente FROM processos p LEFT JOIN usuarios u ON p.cliente_id = u.id";
-        if(!empty($_GET['busca'])) {
-            $data = $_GET['busca'];
-            $sql = "$sqlBase WHERE p.numero_processo ILIKE '%$data%' OR u.nome ILIKE '%$data%' ORDER BY p.id DESC";
-        } else {
-            $sql = "$sqlBase ORDER BY p.id DESC";
-        }
-        $stmtProcessos = $pdo->prepare($sql);
-        $stmtProcessos->execute();
-    }
 ?>
 
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
-    
     <title>SISTEMA | AVCB</title>
     <style>
-        body { background-image: linear-gradient(to right, rgb(80, 220, 120), rgb(20, 70, 35)); color: white; min-height: 100vh; overflow-x: hidden; }
-        .navbar-custom { background-color: rgba(0,0,0,0.2); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .sidebar-content { background-color: rgba(0, 0, 0, 0.2); height: 100%; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); }
-        .sidebar-header { background-color: rgba(0, 0, 0, 0.3); padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .user-name { font-weight: bold; font-size: 1.1rem; display: block; }
-        .user-email { font-size: 0.85rem; opacity: 0.8; }
-        .btn-logout-icon { color: white; float: right; font-size: 1.2rem; cursor: pointer; }
-        .nav-link { color: white; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; display: flex; align-items: center; }
-        .nav-link:hover { background-color: rgba(255,255,255,0.1); color: white; }
-        .nav-link.active { background-color: rgba(0,0,0,0.2); border-left: 4px solid #fff; }
-        .nav-link i { margin-right: 15px; font-size: 1.2rem; }
-        .offcanvas { background-image: linear-gradient(to bottom, rgb(20, 70, 35), rgb(80, 220, 120)); color: white; max-width: 80%; }
-        @media (min-width: 992px) { .sidebar-col { position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; padding: 0; width: 250px; } .main-content { margin-left: 250px; } .btn-menu-mobile { display: none; } }
-        .table-bg { background: rgba(0,0,0,0.3); border-radius: 10px; }
-        .box-search { display: flex; gap: 10px; }
-        @media (max-width: 768px) { .box-search { flex-direction: column; } .w-25 { width: 100% !important; } }
+        :root { --sidebar-width: 260px; }
+        body { background-color: var(--bs-body-bg); min-height: 100vh; transition: background 0.3s; }
+        
+        .sidebar { 
+            width: var(--sidebar-width); 
+            height: 100vh; 
+            position: fixed; 
+            background: var(--bs-tertiary-bg); 
+            border-right: 1px solid var(--bs-border-color);
+            padding: 20px;
+            z-index: 100;
+        }
+        .nav-link { 
+            color: var(--bs-secondary-color); 
+            font-weight: 500; 
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            margin-bottom: 5px; 
+            transition: 0.2s;
+        }
+        .nav-link:hover, .nav-link.active { 
+            background: var(--bs-emphasis-color); 
+            color: var(--bs-body-bg); 
+        }
+        
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; min-height: 100vh; display: flex; flex-direction: column; }
+        .dashboard-welcome { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        
+        .table-container { 
+            background: var(--bs-tertiary-bg); 
+            border-radius: 12px; 
+            border: 1px solid var(--bs-border-color); 
+            overflow: hidden; 
+        }
+        .table thead th { 
+            background-color: var(--bs-emphasis-color) !important; 
+            color: var(--bs-body-bg) !important; 
+            text-transform: uppercase; 
+            font-size: 0.75rem; 
+            letter-spacing: 1px; 
+            padding: 15px;
+            border: none;
+        }
+        .section-header { border-bottom: 1px solid var(--bs-border-color); padding-bottom: 20px; margin-bottom: 30px; }
+        
+        .btn-edit-bw {
+            border-color: var(--bs-border-color);
+            color: var(--bs-body-color);
+        }
+        .btn-edit-bw:hover {
+            background-color: var(--bs-emphasis-color);
+            color: var(--bs-body-bg);
+        }
+
+        #btn-tema { cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-dark navbar-custom d-lg-none">
-        <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMobile"><span class="navbar-toggler-icon"></span></button>
-            <span class="navbar-brand mb-0 h1">SISTEMA AVCB</span>
+    <nav class="sidebar">
+        <div class="mb-5 px-2">
+            <h5 class="fw-bold m-0 text-uppercase">AVCB <span class="fw-light">SISTEMA</span></h5>
+            <small class="opacity-50">Usuário: <?php echo explode('@', $logado)[0]; ?></small>
+        </div>
+
+        <ul class="nav flex-column">
+            <li class="nav-item"><a href="sistema.php?page=home" class="nav-link <?php echo ($pagina_atual == 'home') ? 'active' : ''; ?>"><i class="bi bi-grid-1x2 me-2"></i> Dashboard</a></li>
+            <?php if($perm == 1 || $perm == 3): ?>
+                <li class="nav-item"><a href="sistema.php?page=usuarios" class="nav-link <?php echo ($pagina_atual == 'usuarios') ? 'active' : ''; ?>"><i class="bi bi-people me-2"></i> Usuários</a></li>
+            <?php endif; ?>
+            <?php if($perm == 3): ?>
+                <li class="nav-item"><a href="sistema.php?page=processos" class="nav-link <?php echo ($pagina_atual == 'processos') ? 'active' : ''; ?>"><i class="bi bi-file-earmark-text me-2"></i> Processos</a></li>
+            <?php endif; ?>
+            <li class="nav-item"><a href="sistema.php?page=documentos" class="nav-link <?php echo ($pagina_atual == 'documentos') ? 'active' : ''; ?>"><i class="bi bi-folder me-2"></i> Documentos</a></li>
+        </ul>
+
+        <div class="position-absolute bottom-0 start-0 w-100 p-3">
+            <button class="btn btn-outline-secondary w-100 mb-2" id="btn-tema"><i class="bi bi-moon-stars-fill"></i> TEMA</button>
+            <a href="sair.php" class="btn btn-danger w-100 fw-bold">SAIR</a>
         </div>
     </nav>
 
-    <div class="d-none d-lg-block sidebar-col">
-        <div class="sidebar-content">
-            <div class="sidebar-header">
-                <a href="sair.php" class="btn-logout-icon" title="Sair"><i class="bi bi-box-arrow-right"></i></a>
-                <span class="user-name">Bem-vindo</span>
-                <span class="user-email"><?php echo $logado; ?></span>
-            </div>
-            <div class="d-flex flex-column">
-                <a class="nav-link <?php echo ($pagina_atual == 'home') ? 'active' : ''; ?>" href="sistema.php"><i class="bi bi-house-door"></i> Início</a>
-                <a class="nav-link <?php echo ($pagina_atual == 'documentos') ? 'active' : ''; ?>" href="sistema.php?page=documentos"><i class="bi bi-file-earmark-text"></i> Documentos</a>
-                
-                <?php if($perm == 1 || $perm == 3): ?>
-                <a class="nav-link <?php echo ($pagina_atual == 'usuarios') ? 'active' : ''; ?>" href="sistema.php?page=usuarios"><i class="bi bi-people"></i> Usuários</a>
-                <?php endif; ?>
-
-                <?php if($perm == 3): ?>
-                <a class="nav-link <?php echo ($pagina_atual == 'processos') ? 'active' : ''; ?>" href="sistema.php?page=processos"><i class="bi bi-gear-fill"></i> Processos</a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMobile">
-        <div class="offcanvas-header"><h5 class="offcanvas-title">Menu</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div>
-        <div class="offcanvas-body p-0">
-            <div class="sidebar-header"><span class="user-name">Usuário</span><span class="user-email"><?php echo $logado; ?></span></div>
-            <div class="d-flex flex-column">
-                <a class="nav-link" href="sistema.php"><i class="bi bi-house-door"></i> Início</a>
-                <a class="nav-link" href="sistema.php?page=documentos"><i class="bi bi-file-earmark-text"></i> Documentos</a>
-                <?php if($perm == 1 || $perm == 3): ?>
-                <a class="nav-link" href="sistema.php?page=usuarios"><i class="bi bi-people"></i> Usuários</a>
-                <?php endif; ?>
-                <?php if($perm == 3): ?>
-                <a class="nav-link" href="sistema.php?page=processos"><i class="bi bi-gear-fill"></i> Processos</a>
-                <?php endif; ?>
-                <a class="nav-link text-danger mt-3" href="sair.php"><i class="bi bi-box-arrow-right"></i> Sair</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="main-content p-4 text-center">
-
-        <?php if($pagina_atual == 'home'){ ?>
-            <div class="mt-5"><i class="bi bi-shield-check" style="font-size: 5rem;"></i><h1 class="display-4 fw-bold">Bem vindo ao Sistema</h1></div>
-
-        <?php } elseif($pagina_atual == 'usuarios'){ ?>
-            <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom border-light">
-                <h2>Gestão de Usuários</h2>
-                <a href="cadastroInterno.php" class="btn btn-success"><i class="bi bi-person-plus-fill"></i> Novo Usuário</a>
-            </div>
-            <div class="box-search mb-4">
-                <input type="search" class="form-control w-50" placeholder="Pesquisar..." id="pesquisar" value="<?php echo isset($_GET['busca']) ? $_GET['busca'] : ''; ?>">
-                <button onclick="searchData()" class="btn btn-success"><i class="bi bi-search"></i></button>
-            </div>
-            <div class="table-responsive">
-                <table class="table text-white table-bg align-middle">
-                    <thead><tr><th>#</th><th>Nome</th><th>Email</th><th>Tel</th><th>Tipo</th><th>Ações</th></tr></thead>
-                    <tbody>
-                        <?php while($user_data = $stmt->fetch(PDO::FETCH_ASSOC)){
-                            $tipo = "Cliente";
-                            if($user_data['permissao_id'] == 1) $tipo = "Admin";
-                            elseif($user_data['permissao_id'] == 3) $tipo = "Gestor";
-                            $souAdmin = ($perm == 1); $souGestor = ($perm == 3); $alvoEhCliente = ($user_data['permissao_id'] == 2);
-                            echo "<tr><td>{$user_data['id']}</td><td>{$user_data['nome']}</td><td>{$user_data['email']}</td><td>{$user_data['telefone']}</td><td>$tipo</td><td>";
-                            echo "<a class='btn btn-sm btn-primary' href='edit.php?id={$user_data['id']}'><i class='bi bi-pencil'></i></a> ";
-                            
-                            if($souAdmin || ($souGestor && $alvoEhCliente)){ 
-                                echo "<a class='btn btn-sm btn-danger' href='#' onclick=\"confirmarExclusao(event, 'delete.php?id={$user_data['id']}')\"><i class='bi bi-trash-fill'></i></a>"; 
-                            }
-                            echo "</td></tr>";
-                        } ?>
-                    </tbody>
-                </table>
-            </div>
-
-        <?php } elseif($pagina_atual == 'processos'){ ?>
-            <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom border-light">
-                <h2>Gestão de Processos</h2>
-                <a href="cadastroProcesso.php" class="btn btn-success"><i class="bi bi-plus-circle"></i> Novo Processo</a>
-            </div>
-            <div class="box-search mb-4">
-                <input type="search" class="form-control w-50" placeholder="Pesquisar processos..." id="pesquisar" value="<?php echo isset($_GET['busca']) ? $_GET['busca'] : ''; ?>">
-                <button onclick="searchData()" class="btn btn-success"><i class="bi bi-search"></i></button>
-            </div>
-            <div class="table-responsive">
-                <table class="table text-white table-bg align-middle">
-                    <thead><tr><th>#</th><th>Nº Processo</th><th>Cliente</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
-                    <tbody>
-                        <?php while($proc = $stmtProcessos->fetch(PDO::FETCH_ASSOC)){
-                            echo "<tr><td>{$proc['id']}</td><td><strong>{$proc['numero_processo']}</strong></td><td>".($proc['nome_cliente'] ? $proc['nome_cliente'] : '<i>Desconhecido</i>')."</td><td>{$proc['descricao']}</td><td>{$proc['status']}</td><td>";
-                            echo "<a class='btn btn-sm btn-primary' href='editProcesso.php?id={$proc['id']}'><i class='bi bi-pencil'></i></a> ";
-                            
-                            echo "<a class='btn btn-sm btn-danger' href='#' onclick=\"confirmarExclusao(event, 'deleteProcesso.php?id={$proc['id']}')\"><i class='bi bi-trash-fill'></i></a>";
-                            
-                            echo "</td></tr>";
-                        } ?>
-                    </tbody>
-                </table>
-            </div>
-
-        <?php } elseif($pagina_atual == 'documentos'){ 
-             $id_usuario_logado = $_SESSION['id_usuario'] ?? 0;
-             if($perm == 1){ $sqlDocs = "SELECT d.*, u.nome as nome_usuario FROM documentos d JOIN usuarios u ON d.usuario_id = u.id ORDER BY d.data_upload DESC"; } 
-             else { $sqlDocs = "SELECT d.*, u.nome as nome_usuario FROM documentos d JOIN usuarios u ON d.usuario_id = u.id WHERE d.usuario_id = $id_usuario_logado ORDER BY d.data_upload DESC"; }
-             $stmtDocs = $pdo->prepare($sqlDocs); $stmtDocs->execute();
-        ?>
-            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-light pb-3"><h2>Gestão de Documentos</h2><a href="cadastroDocumento.php" class="btn btn-success"><i class="bi bi-file-earmark-plus"></i> Novo Documento</a></div>
-            <div class="table-responsive"><table class="table text-white table-bg"><thead><tr><th>Código</th><th>Tipo</th><th>Arquivo</th><th>Enviado por</th><th>Data</th><th>Ações</th></tr></thead><tbody>
-                <?php if($stmtDocs->rowCount() == 0){ echo "<tr><td colspan='6'>Nenhum documento encontrado.</td></tr>"; } else {
-                    while($doc = $stmtDocs->fetch(PDO::FETCH_ASSOC)){ $dataForm = date('d/m/Y H:i', strtotime($doc['data_upload']));
-                    echo "<tr><td>{$doc['codigo_identificador']}</td><td>{$doc['tipo_documento']}</td><td>{$doc['caminho_arquivo']}</td><td>{$doc['nome_usuario']}</td><td>$dataForm</td><td>";
-                    echo "<a href='uploads/{$doc['caminho_arquivo']}' target='_blank' class='btn btn-sm btn-light'><i class='bi bi-eye-fill text-success'></i></a>";
-                    
-                    if($perm == 1){ 
-                        echo " <a class='btn btn-sm btn-danger' href='#' onclick=\"confirmarExclusao(event, 'deleteDoc.php?id={$doc['id']}')\"><i class='bi bi-trash-fill'></i></a>"; 
-                    }
-                    echo "</td></tr>"; } } ?>
-            </tbody></table></div>
-        <?php } ?>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <script>
-        var search = document.getElementById('pesquisar');
-        if(search){ search.addEventListener("keydown", function(event) { if (event.key === "Enter") { searchData(); } }); }
-        function searchData(){ window.location = 'sistema.php?page=<?php echo $pagina_atual; ?>&busca='+search.value; }
+    <main class="main-content">
         
-        function confirmarExclusao(event, url) {
-            event.preventDefault();
+        <?php if($pagina_atual == 'home'): ?>
+            <div class="dashboard-welcome">
+                <i class="bi bi-shield-check display-1 mb-3"></i>
+                <h1 class="display-3 fw-bold text-uppercase">Bem-vindo</h1>
+                <p class="lead opacity-75">Sistema de Gestão AVCB em operação.</p>
+                <div class="mt-4 p-3 border rounded-3 bg-body-tertiary">
+                    <small class="text-uppercase fw-bold opacity-50 d-block">Nível de Acesso</small>
+                    <span class="fs-5 fw-bold"><?php echo ($perm == 1 ? 'ADMINISTRADOR' : ($perm == 3 ? 'GESTOR' : 'CLIENTE')); ?></span>
+                </div>
+            </div>
 
+        <?php elseif($pagina_atual == 'usuarios'): ?>
+            <div class="section-header d-flex justify-content-between align-items-center">
+                <h2 class="fw-bold m-0 text-uppercase">Listagem de Usuários</h2>
+                <a href="cadastroInterno.php" class="btn btn-dark fw-bold border">+ NOVO USUÁRIO</a>
+            </div>
+            <div class="table-container">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th><th>Nome</th><th>E-mail</th><th>Perfil</th><th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                            $res = $pdo->query("SELECT id, nome, email, permissao_id FROM usuarios ORDER BY id DESC");
+                            while($u = $res->fetch(PDO::FETCH_ASSOC)) {
+                                $nivel = ($u['permissao_id'] == 1 ? 'Admin' : ($u['permissao_id'] == 3 ? 'Gestor' : 'Cliente'));
+                                echo "<tr>
+                                    <td>{$u['id']}</td>
+                                    <td class='fw-bold'>{$u['nome']}</td>
+                                    <td>{$u['email']}</td>
+                                    <td><span class='badge border text-secondary'>$nivel</span></td>
+                                    <td class='text-center'>
+                                        <a href='edit.php?id={$u['id']}' class='btn btn-sm btn-edit-bw' title='Editar'><i class='bi bi-pencil-square'></i></a>
+                                        <button onclick='confirmarDel({$u['id']}, \"usuarios\")' class='btn btn-sm btn-outline-danger' title='Excluir'><i class='bi bi-trash'></i></button>
+                                    </td>
+                                </tr>";
+                            }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+
+        <?php elseif($pagina_atual == 'processos'): ?>
+            <div class="section-header d-flex justify-content-between align-items-center">
+                <h2 class="fw-bold m-0 text-uppercase">Listagem de Processos</h2>
+                <a href="cadastroProcesso.php" class="btn btn-dark fw-bold border">+ NOVO PROCESSO</a>
+            </div>
+            <div class="table-container">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nº Processo</th><th>Status</th><th>Data</th><th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                            $resP = $pdo->query("SELECT * FROM processos ORDER BY id DESC");
+                            while($p = $resP->fetch(PDO::FETCH_ASSOC)) {
+                                echo "<tr>
+                                    <td class='fw-bold'>{$p['numero_processo']}</td>
+                                    <td><span class='badge bg-dark border'>{$p['status']}</span></td>
+                                    <td>".date('d/m/Y', strtotime($p['data_criacao']))."</td>
+                                    <td class='text-center'>
+                                        <a href='editProcesso.php?id={$p['id']}' class='btn btn-sm btn-edit-bw'><i class='bi bi-pencil-square'></i></a>
+                                        <button onclick='confirmarDel({$p['id']}, \"processos\")' class='btn btn-sm btn-outline-danger'><i class='bi bi-trash'></i></button>
+                                    </td>
+                                </tr>";
+                            }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+
+        <?php elseif($pagina_atual == 'documentos'): ?>
+            <div class="section-header d-flex justify-content-between align-items-center">
+                <h2 class="fw-bold m-0 text-uppercase">Gestão de Documentos</h2>
+                <a href="cadastroDocumento.php" class="btn btn-dark fw-bold border">+ NOVO DOCUMENTO</a>
+            </div>
+            <div class="table-container">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Cód</th><th>Tipo</th><th>Arquivo</th><th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                            $sqlD = ($perm == 1) ? "SELECT * FROM documentos ORDER BY id DESC" : "SELECT * FROM documentos WHERE usuario_id = $id_user_logado ORDER BY id DESC";
+                            $resD = $pdo->query($sqlD);
+                            if($resD->rowCount() == 0) echo "<tr><td colspan='4' class='text-center py-4 opacity-50'>Nenhum documento encontrado.</td></tr>";
+                            while($d = $resD->fetch(PDO::FETCH_ASSOC)) {
+                                echo "<tr>
+                                    <td class='small fw-bold text-uppercase'>{$d['codigo_identificador']}</td>
+                                    <td>{$d['tipo_documento']}</td>
+                                    <td class='text-truncate' style='max-width:200px'>{$d['caminho_arquivo']}</td>
+                                    <td class='text-center'>
+                                        <a href='uploads/{$d['caminho_arquivo']}' target='_blank' class='btn btn-sm btn-edit-bw'><i class='bi bi-eye'></i></a>
+                                        ".($perm == 1 ? "<button onclick='confirmarDel({$d['id']}, \"documentos\")' class='btn btn-sm btn-outline-danger'><i class='bi bi-trash'></i></button>" : "")."
+                                    </td>
+                                </tr>";
+                            }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmarDel(id, tipo) {
+            let url = (tipo === 'usuarios') ? 'delete.php' : (tipo === 'processos' ? 'deleteProcesso.php' : 'deleteDoc.php');
             Swal.fire({
-                title: 'Tem certeza?',
-                text: "Você não poderá reverter isso!",
+                title: 'Confirmar exclusão?',
+                text: "Esta ação não poderá ser desfeita.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sim, excluir!',
-                cancelButtonText: 'Cancelar',
-                background: '#1f1f1f',
-                color: '#fff'
+                confirmButtonColor: '#000',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sim, excluir',
+                background: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#1f1f1f' : '#fff',
+                color: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = url;
-                }
-            })
+                if (result.isConfirmed) { window.location.href = url + '?id=' + id; }
+            });
         }
 
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const msg = urlParams.get('msg');
-
-            if(msg === 'deletado'){
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Excluído!',
-                    text: 'O registro foi apagado com sucesso.',
-                    background: '#1f1f1f',
-                    color: '#fff',
-                    confirmButtonColor: 'limegreen'
-                });
-            } else if(msg === 'atualizado'){
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Atualizado!',
-                    text: 'Dados salvos com sucesso.',
-                    background: '#1f1f1f',
-                    color: '#fff',
-                    confirmButtonColor: 'limegreen'
-                });
-            } else if(msg === 'cadastrado'){
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Cadastrado!',
-                    text: 'Novo registro criado com sucesso.',
-                    background: '#1f1f1f',
-                    color: '#fff',
-                    confirmButtonColor: 'limegreen'
-                });
-            } else if(msg === 'sem_permissao'){
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Acesso Negado',
-                    text: 'Você não tem permissão para realizar essa ação.',
-                    background: '#1f1f1f',
-                    color: '#fff',
-                    confirmButtonColor: '#d33'
-                });
-            }
-        }
+        const btnTema = document.getElementById('btn-tema');
+        const html = document.documentElement;
+        const setTema = (tema) => {
+            html.setAttribute('data-bs-theme', tema);
+            localStorage.setItem('tema', tema);
+            btnTema.innerHTML = tema === 'dark' ? '<i class="bi bi-moon-stars-fill"></i> TEMA' : '<i class="bi bi-brightness-high-fill"></i> TEMA';
+        };
+        setTema(localStorage.getItem('tema') || 'dark');
+        btnTema.addEventListener('click', () => {
+            const novo = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+            setTema(novo);
+        });
     </script>
 </body>
 </html>
