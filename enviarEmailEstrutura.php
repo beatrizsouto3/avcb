@@ -10,7 +10,7 @@ require __DIR__ . '/PHPMailer/src/SMTP.php';
 function getMailer() {
     $mail = new PHPMailer(true);
     try {
-        $mail->SMTPDebug = 0;
+        $mail->SMTPDebug = 0; 
         $mail->Debugoutput = 'html'; 
 
         $mail->isSMTP();
@@ -21,8 +21,10 @@ function getMailer() {
         $mail->Username   = '---'; 
         $mail->Password   = '---';
         
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port       = 465; 
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587; 
+
+        $mail->Timeout = 10; 
 
         $mail->SMTPOptions = array(
             'ssl' => array(
@@ -66,9 +68,9 @@ function enviarEmailBoasVindas($nome, $emailDestino, $senhaLimpa) {
             </div>
             ";
 
-            $mail->send();
-            return true;
+            return $mail->send();
         } catch (Exception $e) {
+            error_log("Erro PHPMailer: " . $mail->ErrorInfo);
             return false;
         }
     }
@@ -102,6 +104,7 @@ function enviarEmailRecuperacao($nome, $emailDestino, $senhaTemp) {
             $mail->send();
             return true;
         } catch (Exception $e) {
+            error_log("Erro no envio de e-mail (Recuperação): " . $mail->ErrorInfo);
             return false;
         }
     }

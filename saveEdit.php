@@ -2,113 +2,112 @@
     session_start();
     include_once('config.php');
 
-    if((!isset($_SESSION['email']) == true) or ($_SESSION['permissao'] != 1 && $_SESSION['permissao'] != 3)){
+    if((!isset($_SESSION['email']) == true) or (!isset($_SESSION['senha']) == true) or ($_SESSION['permissao'] != 1 && $_SESSION['permissao'] != 3)){
         header('Location: sistema.php');
         exit;
     }
 
-    if(isset($_POST['update']))
-    {
+    if(isset($_POST['update'])) {
         $id = $_POST['id'];
-        
-        if($_SESSION['permissao'] == 3){
-            $sqlCheck = "SELECT permissao_id FROM usuarios WHERE id = :id";
-            $stmtCheck = $pdo->prepare($sqlCheck);
-            $stmtCheck->execute([':id' => $id]);
-            $alvo = $stmtCheck->fetch(PDO::FETCH_ASSOC);
-            
-            if($alvo['permissao_id'] != 2){
-                header('Location: sistema.php?msg=sem_permissao');
+        $tipo_cliente = $_POST['tipo_cliente'];
+        $nome = $_POST['nome'];
+        $email = $_POST['email'];
+        $celular = $_POST['celular'];
+        $permissao_id = $_POST['permissao_id'];
+
+        $data_referencia = !empty($_POST['data_referencia']) ? $_POST['data_referencia'] : null;
+
+        if($tipo_cliente == 'PF'){
+            $cpf_cnpj = $_POST['cpf'];
+            if(empty($nome) || empty($cpf_cnpj) || empty($email) || empty($celular)){
+                header("Location: edit.php?id=$id&erro=obrigatorios");
+                exit;
+            }
+        } else {
+            $cpf_cnpj = $_POST['cnpj'];
+            if(empty($nome) || empty($cpf_cnpj) || empty($_POST['representante_nome']) || empty($_POST['representante_cpf']) || empty($email) || empty($celular)){
+                header("Location: edit.php?id=$id&erro=obrigatorios");
                 exit;
             }
         }
 
-        $nome = $_POST['nome'];
-        $nome_fantasia = $_POST['nome_fantasia'];
-        $email = $_POST['email'];
-        $data_referencia = !empty($_POST['data_referencia']) ? $_POST['data_referencia'] : null;
-
-        $senhaPost = $_POST['senha'];
-        $senhaUpdate = "";
-        if(!empty($senhaPost)){
-            $senhaMd5 = md5($senhaPost);
-            $senhaUpdate = ", senha = '$senhaMd5'"; 
-        }
-
-        $tipo_cliente = $_POST['tipo_cliente'];
-        $cpf_cnpj = ($tipo_cliente == 'PJ') ? $_POST['cnpj'] : $_POST['cpf'];
-        
-        $rg = $_POST['rg'];
-        $inscricao_estadual = $_POST['inscricao_estadual'];
-        
-        $representante_nome = $_POST['representante_nome'];
-        $representante_cpf = $_POST['representante_cpf'];
-        $representante_cargo = $_POST['representante_cargo'];
-
-        $cep = $_POST['cep']; $logradouro = $_POST['logradouro']; $numero = $_POST['numero'];
-        $complemento = $_POST['complemento']; $bairro = $_POST['bairro'];
-        $cidade = $_POST['cidade']; $estado = $_POST['estado'];
-
-        $telefone = $_POST['telefone']; $celular = $_POST['celular'];
-        $perfil_cliente = $_POST['perfil_cliente']; $origem_contato = $_POST['origem_contato'];
-        $observacoes = $_POST['observacoes'];
-        
-        if($_SESSION['permissao'] == 1){
-            $permissao_id = $_POST['permissao_id'];
-        } else {
-            $permissao_id = 2;
-        }
-
-        $sql = "UPDATE usuarios SET 
-                    nome = :nome, 
-                    nome_fantasia = :nome_fantasia,
-                    email = :email,
-                    data_nascimento_fundacao = :data_referencia,
-                    tipo_cliente = :tipo_cliente,
-                    cpf_cnpj = :cpf_cnpj,
-                    rg = :rg,
-                    inscricao_estadual = :inscricao_estadual,
-                    representante_nome = :representante_nome,
-                    representante_cpf = :representante_cpf,
-                    representante_cargo = :representante_cargo,
-                    cep = :cep,
-                    logradouro = :logradouro,
-                    numero = :numero,
-                    complemento = :complemento,
-                    bairro = :bairro,
-                    cidade = :cidade,
-                    estado = :estado,
-                    telefone = :telefone,
-                    celular = :celular,
-                    perfil_cliente = :perfil_cliente,
-                    origem_contato = :origem_contato,
-                    observacoes = :observacoes,
-                    permissao_id = :permissao_id
-                    $senhaUpdate
-                WHERE id = :id";
-        
         try {
-            $stmt = $pdo->prepare($sql);
-            
-            $stmt->execute([
-                ':nome' => $nome, ':nome_fantasia' => $nome_fantasia, ':email' => $email,
-                ':data_referencia' => $data_referencia, ':tipo_cliente' => $tipo_cliente,
-                ':cpf_cnpj' => $cpf_cnpj, ':rg' => $rg, ':inscricao_estadual' => $inscricao_estadual,
-                ':representante_nome' => $representante_nome, ':representante_cpf' => $representante_cpf, ':representante_cargo' => $representante_cargo,
-                ':cep' => $cep, ':logradouro' => $logradouro, ':numero' => $numero, ':complemento' => $complemento,
-                ':bairro' => $bairro, ':cidade' => $cidade, ':estado' => $estado,
-                ':telefone' => $telefone, ':celular' => $celular, 
-                ':perfil_cliente' => $perfil_cliente, ':origem_contato' => $origem_contato,
-                ':observacoes' => $observacoes, ':permissao_id' => $permissao_id,
-                ':id' => $id
-            ]);
+            if(!empty($_POST['senha'])) {
+                $senha = md5($_POST['senha']);
+                $sql_senha = ", senha = :senha";
+            } else {
+                $sql_senha = "";
+            }
 
-            header('Location: sistema.php?page=usuarios&msg=atualizado');
-        } catch (PDOException $e) {
-            echo "Erro ao atualizar: " . $e->getMessage();
+            $sqlInsert = "UPDATE usuarios SET 
+                nome = :nome, 
+                nome_fantasia = :nome_fantasia, 
+                data_nascimento_fundacao = :data_ref, 
+                tipo_cliente = :tipo, 
+                cpf_cnpj = :id_fiscal, 
+                rg = :rg, 
+                inscricao_estadual = :ie,
+                representante_nome = :rep_n, 
+                representante_cpf = :rep_c, 
+                representante_cargo = :rep_cargo, 
+                representante_email = :rep_email,
+                cep = :cep, 
+                logradouro = :log, 
+                numero = :num, 
+                complemento = :comp, 
+                bairro = :bairro, 
+                cidade = :cid, 
+                estado = :est, 
+                telefone = :tel, 
+                celular = :cel, 
+                email = :email, 
+                permissao_id = :perm
+                $sql_senha
+                WHERE id = :id";
+
+            $stmt = $pdo->prepare($sqlInsert);
+            
+            $params = [
+                ':nome' => $nome,
+                ':nome_fantasia' => $_POST['nome_fantasia'],
+                ':data_ref' => $data_referencia,
+                ':tipo' => $tipo_cliente,
+                ':id_fiscal' => $cpf_cnpj,
+                ':rg' => $_POST['rg'],
+                ':ie' => $_POST['inscricao_estadual'],
+                ':rep_n' => $_POST['representante_nome'],
+                ':rep_c' => $_POST['representante_cpf'],
+                ':rep_cargo' => $_POST['representante_cargo'],
+                ':rep_email' => $_POST['representante_email'],
+                ':cep' => $_POST['cep'],
+                ':log' => $_POST['logradouro'],
+                ':num' => $_POST['numero'],
+                ':comp' => $_POST['complemento'],
+                ':bairro' => $_POST['bairro'],
+                ':cid' => $_POST['cidade'],
+                ':est' => $_POST['estado'],
+                ':tel' => $_POST['telefone'],
+                ':cel' => $celular,
+                ':email' => $email,
+                ':perm' => $permissao_id,
+                ':id' => $id
+            ];
+
+            if(!empty($_POST['senha'])) {
+                $params[':senha'] = $senha;
+            }
+
+            $stmt->execute($params);
+
+            header('Location: sistema.php?page=usuarios&msg=editado');
+            exit;
+
+        } catch (Exception $e) {
+            header("Location: edit.php?id=$id&msg=erro");
+            exit;
         }
-    }
-    else {
+    } else {
         header('Location: sistema.php?page=usuarios');
+        exit;
     }
 ?>

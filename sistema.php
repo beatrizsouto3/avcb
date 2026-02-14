@@ -96,19 +96,38 @@
 
     <nav class="sidebar">
         <div class="mb-5 px-2">
-            <h5 class="fw-bold m-0 text-uppercase">AVCB <span class="fw-light">SISTEMA</span></h5>
-            <small class="opacity-50">Usuário: <?php echo explode('@', $logado)[0]; ?></small>
+            <h5 class="fw-bold m-0 text-uppercase">AVCB ♢<span class="fw-light"> SISTEMA</span></h5>
+            <small class="opacity-50">○ Usuário: <?php echo explode('@', $logado)[0]; ?></small>
         </div>
 
         <ul class="nav flex-column">
-            <li class="nav-item"><a href="sistema.php?page=home" class="nav-link <?php echo ($pagina_atual == 'home') ? 'active' : ''; ?>"><i class="bi bi-grid-1x2 me-2"></i> Dashboard</a></li>
+            <li class="nav-item">
+                <a href="sistema.php?page=home" class="nav-link <?php echo ($pagina_atual == 'home') ? 'active' : ''; ?>">
+                    <i class="bi bi-grid-1x2 me-2"></i> Dashboard
+                </a>
+            </li>
+            
             <?php if($perm == 1 || $perm == 3): ?>
-                <li class="nav-item"><a href="sistema.php?page=usuarios" class="nav-link <?php echo ($pagina_atual == 'usuarios') ? 'active' : ''; ?>"><i class="bi bi-people me-2"></i> Usuários</a></li>
+                <li class="nav-item">
+                    <a href="sistema.php?page=usuarios" class="nav-link <?php echo ($pagina_atual == 'usuarios') ? 'active' : ''; ?>">
+                        <i class="bi bi-people me-2"></i> Usuários
+                    </a>
+                </li>
             <?php endif; ?>
+
             <?php if($perm == 3): ?>
-                <li class="nav-item"><a href="sistema.php?page=processos" class="nav-link <?php echo ($pagina_atual == 'processos') ? 'active' : ''; ?>"><i class="bi bi-file-earmark-text me-2"></i> Processos</a></li>
+                <li class="nav-item">
+                    <a href="sistema.php?page=processos" class="nav-link <?php echo ($pagina_atual == 'processos') ? 'active' : ''; ?>">
+                        <i class="bi bi-file-earmark-text me-2"></i> Processos
+                    </a>
+                </li>
             <?php endif; ?>
-            <li class="nav-item"><a href="sistema.php?page=documentos" class="nav-link <?php echo ($pagina_atual == 'documentos') ? 'active' : ''; ?>"><i class="bi bi-folder me-2"></i> Documentos</a></li>
+
+            <li class="nav-item">
+                <a href="sistema.php?page=documentos" class="nav-link <?php echo ($pagina_atual == 'documentos') ? 'active' : ''; ?>">
+                    <i class="bi bi-folder me-2"></i> Documentos
+                </a>
+            </li>
         </ul>
 
         <div class="position-absolute bottom-0 start-0 w-100 p-3">
@@ -130,7 +149,7 @@
                 </div>
             </div>
 
-        <?php elseif($pagina_atual == 'usuarios'): ?>
+        <?php elseif($pagina_atual == 'usuarios' && ($perm == 1 || $perm == 3)): ?>
             <div class="section-header d-flex justify-content-between align-items-center">
                 <h2 class="fw-bold m-0 text-uppercase">Listagem de Usuários</h2>
                 <a href="cadastroInterno.php" class="btn btn-dark fw-bold border">+ NOVO USUÁRIO</a>
@@ -144,8 +163,9 @@
                     </thead>
                     <tbody>
                         <?php
-                            $res = $pdo->query("SELECT id, nome, email, permissao_id FROM usuarios ORDER BY id DESC");
-                            while($u = $res->fetch(PDO::FETCH_ASSOC)) {
+                            $sqlU = ($perm == 1) ? "SELECT * FROM usuarios ORDER BY id DESC" : "SELECT * FROM usuarios WHERE permissao_id = 2 ORDER BY id DESC";
+                            $resU = $pdo->query($sqlU);
+                            while($u = $resU->fetch(PDO::FETCH_ASSOC)) {
                                 $nivel = ($u['permissao_id'] == 1 ? 'Admin' : ($u['permissao_id'] == 3 ? 'Gestor' : 'Cliente'));
                                 echo "<tr>
                                     <td>{$u['id']}</td>
@@ -153,8 +173,8 @@
                                     <td>{$u['email']}</td>
                                     <td><span class='badge border text-secondary'>$nivel</span></td>
                                     <td class='text-center'>
-                                        <a href='edit.php?id={$u['id']}' class='btn btn-sm btn-edit-bw' title='Editar'><i class='bi bi-pencil-square'></i></a>
-                                        <button onclick='confirmarDel({$u['id']}, \"usuarios\")' class='btn btn-sm btn-outline-danger' title='Excluir'><i class='bi bi-trash'></i></button>
+                                        <a href='edit.php?id={$u['id']}' class='btn btn-sm btn-edit-bw'><i class='bi bi-pencil-square'></i></a>
+                                        <button onclick='confirmarDel({$u['id']}, \"usuarios\")' class='btn btn-sm btn-outline-danger'><i class='bi bi-trash'></i></button>
                                     </td>
                                 </tr>";
                             }
@@ -163,9 +183,9 @@
                 </table>
             </div>
 
-        <?php elseif($pagina_atual == 'processos'): ?>
+        <?php elseif($pagina_atual == 'processos' && $perm == 3): ?>
             <div class="section-header d-flex justify-content-between align-items-center">
-                <h2 class="fw-bold m-0 text-uppercase">Listagem de Processos</h2>
+                <h2 class="fw-bold m-0 text-uppercase">Processos Ativos</h2>
                 <a href="cadastroProcesso.php" class="btn btn-dark fw-bold border">+ NOVO PROCESSO</a>
             </div>
             <div class="table-container">
@@ -196,7 +216,7 @@
 
         <?php elseif($pagina_atual == 'documentos'): ?>
             <div class="section-header d-flex justify-content-between align-items-center">
-                <h2 class="fw-bold m-0 text-uppercase">Gestão de Documentos</h2>
+                <h2 class="fw-bold m-0 text-uppercase">Meus Documentos</h2>
                 <a href="cadastroDocumento.php" class="btn btn-dark fw-bold border">+ NOVO DOCUMENTO</a>
             </div>
             <div class="table-container">
@@ -210,7 +230,9 @@
                         <?php
                             $sqlD = ($perm == 1) ? "SELECT * FROM documentos ORDER BY id DESC" : "SELECT * FROM documentos WHERE usuario_id = $id_user_logado ORDER BY id DESC";
                             $resD = $pdo->query($sqlD);
+                            
                             if($resD->rowCount() == 0) echo "<tr><td colspan='4' class='text-center py-4 opacity-50'>Nenhum documento encontrado.</td></tr>";
+                            
                             while($d = $resD->fetch(PDO::FETCH_ASSOC)) {
                                 echo "<tr>
                                     <td class='small fw-bold text-uppercase'>{$d['codigo_identificador']}</td>
@@ -218,7 +240,7 @@
                                     <td class='text-truncate' style='max-width:200px'>{$d['caminho_arquivo']}</td>
                                     <td class='text-center'>
                                         <a href='uploads/{$d['caminho_arquivo']}' target='_blank' class='btn btn-sm btn-edit-bw'><i class='bi bi-eye'></i></a>
-                                        ".($perm == 1 ? "<button onclick='confirmarDel({$d['id']}, \"documentos\")' class='btn btn-sm btn-outline-danger'><i class='bi bi-trash'></i></button>" : "")."
+                                        <button onclick='confirmarDel({$d['id']}, \"documentos\")' class='btn btn-sm btn-outline-danger'><i class='bi bi-trash'></i></button>
                                     </td>
                                 </tr>";
                             }
@@ -232,8 +254,32 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        const msg = urlParams.get('msg');
+        if (msg) {
+            let texto = '';
+            if (msg === 'cadastrado') texto = 'Registro realizado com sucesso!';
+            if (msg === 'editado') texto = 'Alterações salvas com sucesso!';
+            if (msg === 'doc_deletado') texto = 'Documento removido do sistema.';
+
+            if(texto !== '') {
+                Swal.fire({
+                    title: 'Sucesso!',
+                    text: texto,
+                    icon: 'success',
+                    confirmButtonColor: '#000',
+                    background: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#1f1f1f' : '#fff',
+                    color: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                }).then(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname + "?page=" + (urlParams.get('page') || 'home'));
+                });
+            }
+        }
+
         function confirmarDel(id, tipo) {
             let url = (tipo === 'usuarios') ? 'delete.php' : (tipo === 'processos' ? 'deleteProcesso.php' : 'deleteDoc.php');
+            
             Swal.fire({
                 title: 'Confirmar exclusão?',
                 text: "Esta ação não poderá ser desfeita.",
@@ -242,10 +288,13 @@
                 confirmButtonColor: '#000',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Sim, excluir',
+                cancelButtonText: 'Cancelar',
                 background: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#1f1f1f' : '#fff',
                 color: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
             }).then((result) => {
-                if (result.isConfirmed) { window.location.href = url + '?id=' + id; }
+                if (result.isConfirmed) { 
+                    window.location.href = url + '?id=' + id; 
+                }
             });
         }
 

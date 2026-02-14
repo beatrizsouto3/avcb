@@ -64,6 +64,7 @@
         fieldset { background-color: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); border-radius: 12px; padding: 30px; margin-bottom: 30px; }
         legend { float: none; width: auto; padding: 0 15px; font-size: 1rem; font-weight: 700; text-transform: uppercase; color: var(--bs-emphasis-color); background-color: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: 6px; margin-bottom: 20px; }
         .form-label { font-size: 0.8rem; text-transform: uppercase; opacity: 0.7; font-weight: 600; }
+        .required-label::after { content: " *"; color: #dc3545; font-weight: bold; }
         .btn-update { background-color: var(--bs-emphasis-color); color: var(--bs-body-bg); border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; text-transform: uppercase; }
         .hidden { display: none; }
         .btn-voltar { color: var(--bs-emphasis-color); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
@@ -87,11 +88,11 @@
                 <div class="d-flex gap-4 justify-content-center">
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="tipo_cliente" value="PF" id="pf" <?php echo ($tipo_cliente == 'PF') ? 'checked' : ''; ?> onclick="toggleTipo('PF')">
-                        <label class="form-check-label" for="pf">Pessoa Física</label>
+                        <label class="form-check-label fw-bold" for="pf">Pessoa Física</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="tipo_cliente" value="PJ" id="pj" <?php echo ($tipo_cliente == 'PJ') ? 'checked' : ''; ?> onclick="toggleTipo('PJ')">
-                        <label class="form-check-label" for="pj">Pessoa Jurídica</label>
+                        <label class="form-check-label fw-bold" for="pj">Pessoa Jurídica</label>
                     </div>
                 </div>
             </fieldset>
@@ -100,7 +101,7 @@
                 <legend>Dados Gerais</legend>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label">Nome / Razão Social</label>
+                        <label class="form-label required-label">Nome / Razão Social</label>
                         <input type="text" name="nome" class="form-control" value="<?php echo $nome; ?>" required>
                     </div>
                     <div class="col-md-6">
@@ -113,8 +114,8 @@
                     </div>
                     
                     <div class="col-md-4 area_pf <?php echo ($tipo_cliente == 'PJ') ? 'hidden' : ''; ?>">
-                        <label class="form-label">CPF</label>
-                        <input type="text" name="cpf" id="cpf" class="form-control" value="<?php echo ($tipo_cliente == 'PF') ? $cpf_cnpj : ''; ?>" oninput="mascara(this, 'cpf')">
+                        <label class="form-label required-label">CPF</label>
+                        <input type="text" name="cpf" id="cpf" class="form-control req-pf" value="<?php echo ($tipo_cliente == 'PF') ? $cpf_cnpj : ''; ?>" oninput="mascara(this, 'cpf')">
                     </div>
                     <div class="col-md-4 area_pf <?php echo ($tipo_cliente == 'PJ') ? 'hidden' : ''; ?>">
                         <label class="form-label">RG</label>
@@ -122,8 +123,8 @@
                     </div>
 
                     <div class="col-md-4 area_pj <?php echo ($tipo_cliente == 'PF') ? 'hidden' : ''; ?>">
-                        <label class="form-label">CNPJ</label>
-                        <input type="text" name="cnpj" id="cnpj" class="form-control" value="<?php echo ($tipo_cliente == 'PJ') ? $cpf_cnpj : ''; ?>" oninput="mascara(this, 'cnpj')">
+                        <label class="form-label required-label">CNPJ</label>
+                        <input type="text" name="cnpj" id="cnpj" class="form-control req-pj" value="<?php echo ($tipo_cliente == 'PJ') ? $cpf_cnpj : ''; ?>" oninput="mascara(this, 'cnpj')">
                     </div>
                     <div class="col-md-4 area_pj <?php echo ($tipo_cliente == 'PF') ? 'hidden' : ''; ?>">
                         <label class="form-label">Insc. Estadual</label>
@@ -132,10 +133,10 @@
                 </div>
 
                 <div class="area_pj <?php echo ($tipo_cliente == 'PF') ? 'hidden' : ''; ?> mt-4 border-top pt-4">
-                    <h6 class="fw-bold mb-3">Representante Legal</h6>
+                    <h6 class="fw-bold mb-3 text-uppercase small opacity-75">Representante Legal</h6>
                     <div class="row g-3">
-                        <div class="col-md-6"><label class="form-label">Nome</label><input type="text" name="representante_nome" class="form-control" value="<?php echo $representante_nome; ?>"></div>
-                        <div class="col-md-6"><label class="form-label">CPF</label><input type="text" name="representante_cpf" class="form-control" value="<?php echo $representante_cpf; ?>" oninput="mascara(this, 'cpf')"></div>
+                        <div class="col-md-6"><label class="form-label required-label">Nome</label><input type="text" name="representante_nome" class="form-control req-pj" value="<?php echo $representante_nome; ?>"></div>
+                        <div class="col-md-6"><label class="form-label required-label">CPF</label><input type="text" name="representante_cpf" class="form-control req-pj" value="<?php echo $representante_cpf; ?>" oninput="mascara(this, 'cpf')"></div>
                         <div class="col-md-6"><label class="form-label">Cargo</label><input type="text" name="representante_cargo" class="form-control" value="<?php echo $representante_cargo; ?>"></div>
                         <div class="col-md-6"><label class="form-label">E-mail</label><input type="email" name="representante_email" class="form-control" value="<?php echo $representante_email; ?>"></div>
                     </div>
@@ -143,7 +144,7 @@
             </fieldset>
 
             <fieldset>
-                <legend>Endereço</legend>
+                <legend>Endereço (Opcional)</legend>
                 <div class="row g-3">
                     <div class="col-md-3"><label class="form-label">CEP</label><input type="text" name="cep" class="form-control" value="<?php echo $cep; ?>" oninput="mascara(this, 'cep')"></div>
                     <div class="col-md-6"><label class="form-label">Logradouro</label><input type="text" name="logradouro" class="form-control" value="<?php echo $logradouro; ?>"></div>
@@ -158,17 +159,17 @@
             <fieldset>
                 <legend>Segurança e Acesso</legend>
                 <div class="row g-3">
-                    <div class="col-md-6"><label class="form-label">E-mail (Login)</label><input type="email" name="email" class="form-control" value="<?php echo $email; ?>" required></div>
-                    <div class="col-md-3"><label class="form-label">Celular</label><input type="text" name="celular" class="form-control" value="<?php echo $celular; ?>" oninput="mascara(this, 'tel')"></div>
+                    <div class="col-md-6"><label class="form-label required-label">E-mail (Login)</label><input type="email" name="email" class="form-control" value="<?php echo $email; ?>" required></div>
+                    <div class="col-md-3"><label class="form-label required-label">Celular</label><input type="text" name="celular" class="form-control req-always" value="<?php echo $celular; ?>" oninput="mascara(this, 'tel')"></div>
                     <div class="col-md-3"><label class="form-label">Telefone</label><input type="text" name="telefone" class="form-control" value="<?php echo $telefone; ?>" oninput="mascara(this, 'tel')"></div>
                     
                     <div class="col-md-6">
-                        <label class="form-label">Nova Senha (Deixe em branco para não alterar)</label>
+                        <label class="form-label">Nova Senha (Em branco para não alterar)</label>
                         <input type="password" name="senha" class="form-control" placeholder="********">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Nível de Permissão</label>
-                        <select name="permissao_id" class="form-select" <?php echo ($_SESSION['permissao'] != 1) ? 'disabled' : ''; ?>>
+                        <label class="form-label required-label">Nível de Permissão</label>
+                        <select name="permissao_id" class="form-select" <?php echo ($_SESSION['permissao'] != 1) ? 'disabled' : ''; ?> required>
                             <option value="2" <?php echo ($permissao_id == 2) ? 'selected' : ''; ?>>Cliente</option>
                             <option value="3" <?php echo ($permissao_id == 3) ? 'selected' : ''; ?>>Gestor</option>
                             <option value="1" <?php echo ($permissao_id == 1) ? 'selected' : ''; ?>>Administrador</option>
@@ -186,15 +187,17 @@
                     <div class="col-md-6">
                         <label class="form-label">Perfil</label>
                         <select name="perfil_cliente" class="form-select">
-                            <option <?php echo ($perfil_cliente == 'Residencial') ? 'selected' : ''; ?>>Residencial</option>
-                            <option <?php echo ($perfil_cliente == 'Comercial') ? 'selected' : ''; ?>>Comercial</option>
+                            <option value="" <?php echo empty($perfil_cliente) ? 'selected' : ''; ?>>Selecione...</option>
+                            <option value="Residencial" <?php echo ($perfil_cliente == 'Residencial') ? 'selected' : ''; ?>>Residencial</option>
+                            <option value="Comercial" <?php echo ($perfil_cliente == 'Comercial') ? 'selected' : ''; ?>>Comercial</option>
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Origem</label>
                         <select name="origem_contato" class="form-select">
-                            <option <?php echo ($origem_contato == 'Indicação') ? 'selected' : ''; ?>>Indicação</option>
-                            <option <?php echo ($origem_contato == 'Internet') ? 'selected' : ''; ?>>Internet</option>
+                            <option value="" <?php echo empty($origem_contato) ? 'selected' : ''; ?>>Selecione...</option>
+                            <option value="Indicação" <?php echo ($origem_contato == 'Indicação') ? 'selected' : ''; ?>>Indicação</option>
+                            <option value="Internet" <?php echo ($origem_contato == 'Internet') ? 'selected' : ''; ?>>Internet</option>
                         </select>
                     </div>
                     <div class="col-md-12"><label class="form-label">Observações</label><textarea name="observacoes" class="form-control" rows="3"><?php echo $observacoes; ?></textarea></div>
@@ -211,17 +214,29 @@
             const pf = document.querySelectorAll('.area_pf');
             const pj = document.querySelectorAll('.area_pj');
             const comercial = document.getElementById('area_comercial');
+            const inputsPf = document.querySelectorAll('.req-pf');
+            const inputsPj = document.querySelectorAll('.req-pj');
             
             if(tipo === 'PF'){
                 pf.forEach(el => el.classList.remove('hidden'));
                 pj.forEach(el => el.classList.add('hidden'));
                 comercial.classList.add('hidden');
+                inputsPf.forEach(el => el.required = true);
+                inputsPj.forEach(el => el.required = false);
             } else {
                 pf.forEach(el => el.classList.add('hidden'));
                 pj.forEach(el => el.classList.remove('hidden'));
                 comercial.classList.remove('hidden');
+                inputsPf.forEach(el => el.required = false);
+                inputsPj.forEach(el => el.required = true);
             }
         }
+
+        window.onload = () => {
+            const tipoAtual = document.querySelector('input[name="tipo_cliente"]:checked').value;
+            toggleTipo(tipoAtual);
+            document.querySelectorAll('.req-always').forEach(el => el.required = true);
+        };
 
         function mascara(i, t) {
             let v = i.value.replace(/\D/g, "");
