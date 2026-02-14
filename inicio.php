@@ -87,7 +87,7 @@
         
         <div class="d-grid gap-2">
             <a href="login.php" class="btn-inicio">
-                <i class="bi bi-box-arrow-in-right me-2"></i> Aceder ao Sistema
+                <i class="bi bi-box-arrow-in-right me-2"></i> Login
             </a>
             <a href="cadastro.php" class="btn-inicio">
                 <i class="bi bi-person-plus me-2"></i> Registra-se
