@@ -50,6 +50,10 @@
             padding: 20px;
             z-index: 100;
         }
+
+        .logo-sidebar { width: 30px; margin-bottom: 10px; }
+        .logo-dashboard { width: 120px; margin-bottom: 20px; }
+
         .nav-link { 
             color: var(--bs-secondary-color); 
             font-weight: 500; 
@@ -98,9 +102,10 @@
 <body>
 
     <nav class="sidebar">
-        <div class="mb-5 px-2">
+        <div class="mb-5 px-2 text-center">
+            <img src="img/logo_jrfire_new.png" alt="Logo" class="logo-sidebar">
             <h5 class="fw-bold m-0 text-uppercase">AVCB ♢<span class="fw-light"> SISTEMA</span></h5>
-            <small class="opacity-50">⏺︎ Usuário: <?php echo explode('@', $logado)[0]; ?></small>
+            <small class="opacity-50 d-block mt-1">⏺︎ Usuário: <?php echo explode('@', $logado)[0]; ?></small>
         </div>
 
         <ul class="nav flex-column">
@@ -143,7 +148,7 @@
         
         <?php if($pagina_atual == 'home'): ?>
             <div class="dashboard-welcome">
-                <i class="bi bi-shield-check display-1 mb-3"></i>
+                <img src="img/logo_jrfire_new.png" alt="Logo JR Fire" class="logo-dashboard">
                 <h1 class="display-3 fw-bold text-uppercase">Bem-vindo</h1>
                 <p class="lead opacity-75">Sistema de Gestão AVCB em operação.</p>
                 <div class="mt-4 p-3 border rounded-3 bg-body-tertiary">
@@ -263,7 +268,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        
         const msg = urlParams.get('msg');
         if (msg) {
             let texto = '';

@@ -52,9 +52,9 @@
             border-color: var(--bs-emphasis-color);
         }
 
-        .logo-icon {
-            font-size: 4rem;
-            color: var(--bs-emphasis-color);
+        .logo-jrfire {
+            width: 100px;
+            height: auto;
             margin-bottom: 20px;
         }
 
@@ -82,7 +82,7 @@
 
     <div class="box">
         <div class="logo-icon">
-            <i class="bi bi-shield-lock"></i>
+            <img src="img/logo_jrfire_new.png" alt="Logo JR Fire" class="logo-jrfire">
         </div>
         <h1>SISTEMA AVCB</h1>
         
