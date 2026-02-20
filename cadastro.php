@@ -1,3 +1,4 @@
+<?php include 'configuracoes/variaveis.php'; // Inclui o arquivo e as variáveis?>
 <?php
 $sucesso = false;
 $erroEmail = false;
@@ -10,7 +11,7 @@ $erroEmail = false;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <title>REGISTRO | AVCB</title>
+    <title>REGISTRO | <?php echo $empresa; ?> - AVCB</title>
     <style>
         body {
             background-color: #000;
@@ -118,9 +119,9 @@ $erroEmail = false;
 
     <p class="small text-uppercase opacity-50 mb-3">Fale connosco via WhatsApp</p>
     
-    <a href="https://wa.me/5584994243320" target="_blank" class="contato-destaque">
+    <a href="https://wa.me/5584981914191" target="_blank" class="contato-destaque">
         <i class="bi bi-whatsapp"></i>
-        <span>(84) 99424-3320</span>
+        <span>(84) 98191-4191</span>
     </a>
 
     <p class="text-muted small px-4">

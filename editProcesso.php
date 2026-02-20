@@ -9,9 +9,9 @@
 
     if(!empty($_GET['id'])){
         $id = $_GET['id'];
-        $sqlSelect = "SELECT * FROM processos WHERE id=$id";
+        $sqlSelect = "SELECT * FROM processos WHERE id=:id";
         $stmt = $pdo->prepare($sqlSelect);
-        $stmt->execute();
+        $stmt->execute([':id' => $id]);
         if($stmt->rowCount() > 0){
             $proc = $stmt->fetch(PDO::FETCH_ASSOC);
         } else {

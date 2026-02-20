@@ -1,4 +1,4 @@
-<?php include 'configuracoes/variaveis.php'; // Inclui o arquivo e as variáveis?> 
+<?php include 'configuracoes/variaveis.php'; // Inclui o arquivo e as variáveis?>
 <!DOCTYPE html>
 <html lang="pt-br" data-bs-theme="dark">
 <head>

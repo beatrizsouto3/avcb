@@ -1,3 +1,4 @@
+<?php include 'configuracoes/variaveis.php'; // Inclui o arquivo e as variáveis?>
 <?php
     session_start();
     include_once('config.php');
@@ -13,8 +14,10 @@
     $perm = $_SESSION['permissao'];
     $id_user_logado = $_SESSION['id_usuario'];
 
-    $sqlCheck = "SELECT primeiro_acesso FROM usuarios WHERE id = $id_user_logado";
-    $stmtCheck = $pdo->query($sqlCheck);
+    $sqlCheck = "SELECT primeiro_acesso FROM usuarios WHERE id = :id";
+    $stmtCheck = $pdo->prepare($sqlCheck);
+    $stmtCheck->execute([':id' => $id_user_logado]);
+    
     if($stmtCheck && $stmtCheck->rowCount() > 0){
         $statusCheck = $stmtCheck->fetch(PDO::FETCH_ASSOC);
         if($statusCheck['primeiro_acesso'] == 'true' || $statusCheck['primeiro_acesso'] == 1){
@@ -33,7 +36,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <title>SISTEMA | AVCB</title>
+    <title>SISTEMA | <?php echo $empresa; ?> - AVCB</title>
     <style>
         :root { --sidebar-width: 260px; }
         body { background-color: var(--bs-body-bg); min-height: 100vh; transition: background 0.3s; }
@@ -228,8 +231,13 @@
                     </thead>
                     <tbody>
                         <?php
-                            $sqlD = ($perm == 1) ? "SELECT * FROM documentos ORDER BY id DESC" : "SELECT * FROM documentos WHERE usuario_id = $id_user_logado ORDER BY id DESC";
-                            $resD = $pdo->query($sqlD);
+                            $sqlD = ($perm == 1) ? "SELECT * FROM documentos ORDER BY id DESC" : "SELECT * FROM documentos WHERE usuario_id = :id ORDER BY id DESC";
+                            $resD = $pdo->prepare($sqlD);
+                            if ($perm == 1) {
+                                $resD->execute();
+                            } else {
+                                $resD->execute([':id' => $id_user_logado]);
+                            }
                             
                             if($resD->rowCount() == 0) echo "<tr><td colspan='4' class='text-center py-4 opacity-50'>Nenhum documento encontrado.</td></tr>";
                             

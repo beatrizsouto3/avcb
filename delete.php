@@ -11,9 +11,9 @@
     {
         $id = $_GET['id'];
 
-        $sqlSelect = "SELECT * FROM usuarios WHERE id=$id";
+        $sqlSelect = "SELECT * FROM usuarios WHERE id=:id";
         $stmt = $pdo->prepare($sqlSelect);
-        $stmt->execute();
+        $stmt->execute([':id' => $id]);
 
         if($stmt->rowCount() > 0)
         {

@@ -1,12 +1,12 @@
 <?php
 $host = 'localhost';
-$port = '5432';
-$dbname = 'cadastro-avcb';
-$user = 'postgres';
-$password = '1234';
+$port = '3306';
+$dbname = 'avcb';
+$user = 'avcb';
+$password = 'AvCb@2026#';
 
 try {
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
 
     $pdo = new PDO($dsn, $user, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 
