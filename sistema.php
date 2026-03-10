@@ -1,4 +1,4 @@
-<?php include 'configuracoes/variaveis.php'; // Inclui o arquivo e as variáveis?>
+<?php include 'configuracoes/variaveis.php'; ?>
 <?php
     session_start();
     include_once('config.php');
@@ -103,7 +103,7 @@
 
     <nav class="sidebar">
         <div class="mb-5 px-2 text-center">
-            <img src="img/logo_jrfire_new.png" alt="Logo" class="logo-sidebar">
+            <img src="img/logo_brasas.png" alt="Logo" class="logo-sidebar">
             <h5 class="fw-bold m-0 text-uppercase">AVCB ♢<span class="fw-light"> SISTEMA</span></h5>
             <small class="opacity-50 d-block mt-1">⏺︎ Usuário: <?php echo explode('@', $logado)[0]; ?></small>
         </div>
@@ -148,7 +148,7 @@
         
         <?php if($pagina_atual == 'home'): ?>
             <div class="dashboard-welcome">
-                <img src="img/logo_jrfire_new.png" alt="Logo JR Fire" class="logo-dashboard">
+                <img src="img/logo_brasas.png" alt="Logo JR Fire" class="logo-dashboard">
                 <h1 class="display-3 fw-bold text-uppercase">Bem-vindo</h1>
                 <p class="lead opacity-75">Sistema de Gestão AVCB em operação.</p>
                 <div class="mt-4 p-3 border rounded-3 bg-body-tertiary">
@@ -271,13 +271,19 @@
         const msg = urlParams.get('msg');
         if (msg) {
             let texto = '';
+            let titulo = 'Sucesso!';
+
             if (msg === 'cadastrado') texto = 'Registro realizado com sucesso!';
-            if (msg === 'editado') texto = 'Alterações salvas com sucesso!';
-            if (msg === 'doc_deletado') texto = 'Documento removido do sistema.';
+            if (msg === 'editado' || msg === 'atualizado') texto = 'Alterações salvas com sucesso!';
+            if (msg === 'deletado' || msg === 'doc_deletado') {
+                titulo = 'Removido!';
+                texto = 'O registro foi excluído permanentemente.';
+            }
+            if (msg === 'doc_sucesso') texto = 'Documento enviado com sucesso!';
 
             if(texto !== '') {
                 Swal.fire({
-                    title: 'Sucesso!',
+                    title: titulo,
                     text: texto,
                     icon: 'success',
                     confirmButtonColor: '#000',

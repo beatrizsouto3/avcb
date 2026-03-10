@@ -70,6 +70,12 @@
             top: 20px;
             right: 20px;
         }
+
+        .logo-brasas {
+            width: 100px;
+            height: auto;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -80,9 +86,14 @@
         </button>
     </div>
 
-    <div class="box">
+    <!--<div class="box">
         <div class="logo-icon">
             <i class="bi bi-shield-lock"></i>
+        </div>
+    -->
+    <div class="box">
+        <div class="logo-icon">
+            <img src="img/logo_brasas.png" alt="Logo JR Fire" class="logo-brasas">
         </div>
         <h1>SISTEMA AVCB</h1>
         

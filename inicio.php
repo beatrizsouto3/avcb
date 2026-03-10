@@ -52,7 +52,7 @@
             border-color: var(--bs-emphasis-color);
         }
 
-        .logo-jrfire {
+        .logo-brasas {
             width: 100px;
             height: auto;
             margin-bottom: 20px;
@@ -82,7 +82,7 @@
 
     <div class="box">
         <div class="logo-icon">
-            <img src="img/logo_jrfire_new.png" alt="Logo JR Fire" class="logo-jrfire">
+            <img src="img/logo_brasas.png" alt="Logo JR Fire" class="logo-brasas">
         </div>
         <h1>SISTEMA AVCB</h1>
         

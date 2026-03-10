@@ -19,7 +19,7 @@
         try {
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':num' => $numero, ':desc' => $descricao, ':status' => $status, ':cli' => $cliente_id, ':id' => $id]);
-            header('Location: sistema.php?page=processos&msg=atualizado');
+            header('Location: sistema.php?page=processos&msg=editado');
         } catch(PDOException $e) { echo "Erro: " . $e->getMessage(); }
     } else {
         header('Location: sistema.php?page=processos');
