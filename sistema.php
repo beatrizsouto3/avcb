@@ -123,7 +123,7 @@
                 </li>
             <?php endif; ?>
 
-            <?php if($perm == 3): ?>
+            <?php if($perm == 3 || $perm == 2): ?>
                 <li class="nav-item">
                     <a href="sistema.php?page=processos" class="nav-link <?php echo ($pagina_atual == 'processos') ? 'active' : ''; ?>">
                         <i class="bi bi-file-earmark-text me-2"></i> Processos
@@ -191,31 +191,47 @@
                 </table>
             </div>
 
-        <?php elseif($pagina_atual == 'processos' && $perm == 3): ?>
+        <?php elseif($pagina_atual == 'processos' && ($perm == 3 || $perm == 2)):  ?>
             <div class="section-header d-flex justify-content-between align-items-center">
-                <h2 class="fw-bold m-0 text-uppercase">Processos Ativos</h2>
-                <a href="cadastroProcesso.php" class="btn btn-dark fw-bold border">+ NOVO PROCESSO</a>
+                <h2 class="fw-bold m-0 text-uppercase">
+                    <?php echo ($perm == 2) ? "Meus Processos" : "Processos Ativos"; ?>
+                </h2>
+                <?php if($perm == 3): ?>
+                    <a href="cadastroProcesso.php" class="btn btn-dark fw-bold border">+ NOVO PROCESSO</a>
+                <?php endif; ?>
             </div>
             <div class="table-container">
                 <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th>Nº Processo</th><th>Status</th><th>Data</th><th class="text-center">Ações</th>
+                            <th>Nº Processo</th><th>Status</th><th>Data</th><?php if($perm == 3): ?><th class="text-center">Ações</th><?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                            $resP = $pdo->query("SELECT * FROM processos ORDER BY id DESC");
-                            while($p = $resP->fetch(PDO::FETCH_ASSOC)) {
+                            if($perm == 2) {
+                                $sqlP = "SELECT * FROM processos WHERE cliente_id = :id ORDER BY id DESC";
+                                $stmtP = $pdo->prepare($sqlP);
+                                $stmtP->execute([':id' => $id_user_logado]);
+                            } else {
+                                $sqlP = "SELECT * FROM processos ORDER BY id DESC";
+                                $stmtP = $pdo->query($sqlP);
+                            }
+
+                            if($stmtP->rowCount() == 0) echo "<tr><td colspan='4' class='text-center py-4 opacity-50'>Nenhum processo encontrado.</td></tr>";
+
+                            while($p = $stmtP->fetch(PDO::FETCH_ASSOC)) {
                                 echo "<tr>
                                     <td class='fw-bold'>{$p['numero_processo']}</td>
                                     <td><span class='badge bg-dark border'>{$p['status']}</span></td>
-                                    <td>".date('d/m/Y', strtotime($p['data_criacao']))."</td>
-                                    <td class='text-center'>
+                                    <td>".date('d/m/Y', strtotime($p['data_criacao']))."</td>";
+                                if($perm == 3){
+                                    echo "<td class='text-center'>
                                         <a href='editProcesso.php?id={$p['id']}' class='btn btn-sm btn-edit-bw'><i class='bi bi-pencil-square'></i></a>
                                         <button onclick='confirmarDel({$p['id']}, \"processos\")' class='btn btn-sm btn-outline-danger'><i class='bi bi-trash'></i></button>
-                                    </td>
-                                </tr>";
+                                    </td>";
+                                }
+                                echo "</tr>";
                             }
                         ?>
                     </tbody>
@@ -321,7 +337,7 @@
         const setTema = (tema) => {
             html.setAttribute('data-bs-theme', tema);
             localStorage.setItem('tema', tema);
-            btnTema.innerHTML = tema === 'dark' ? '<i class="bi bi-moon-stars-fill"></i> TEMA' : '<i class="bi bi-brightness-high-fill"></i> TEMA';
+            btnTema.innerHTML = tema === 'dark' ? '<i class=\"bi bi-moon-stars-fill\"></i> TEMA' : '<i class=\"bi bi-brightness-high-fill\"></i> TEMA';
         };
         setTema(localStorage.getItem('tema') || 'dark');
         btnTema.addEventListener('click', () => {

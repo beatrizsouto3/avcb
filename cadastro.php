@@ -119,9 +119,9 @@ $erroEmail = false;
 
     <p class="small text-uppercase opacity-50 mb-3">Fale connosco via WhatsApp</p>
     
-    <a href="https://wa.me/5584981914191" target="_blank" class="contato-destaque">
+    <a href="https://wa.me/5584xxxxxxxx" target="_blank" class="contato-destaque">
         <i class="bi bi-whatsapp"></i>
-        <span>(84) 98191-4191</span>
+        <span>(84) xxxx-xxxx</span>
     </a>
 
     <p class="text-muted small px-4">
